@@ -10,8 +10,8 @@ interface HeaderProps {
 }
 
 export function Header({
-  householdName = "Keluarga Reynaldi",
-  partnerName = "Reynaldi & Istri",
+  householdName = "Keluarga Bahagia",
+  partnerName = "Suami & Istri",
 }: HeaderProps) {
   const [isRotating, setIsRotating] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);

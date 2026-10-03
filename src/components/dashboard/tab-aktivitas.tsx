@@ -45,7 +45,7 @@ export function TabAktivitas({
       {
         id: "tk1",
         title: "Buang sampah & bersihkan kotak filter AC",
-        assignee: "Reynaldi",
+        assignee: "Suami",
         dueDate: "Hari ini (Mendesak)",
         isUrgent: true,
         completed: false,
@@ -71,7 +71,7 @@ export function TabAktivitas({
       {
         id: "tk4",
         title: "Service berkala motor Honda Vario",
-        assignee: "Reynaldi",
+        assignee: "Suami",
         dueDate: "5 Okt 2026",
         isUrgent: false,
         completed: false,

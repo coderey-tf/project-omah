@@ -1,6 +1,6 @@
 # PRD: Sistem Manajemen Keluarga (Internal)
 
-**Versi:** 0.6 (draft) · **Tanggal:** 1 Oktober 2026 · **Pemilik:** Reynaldi **Status:** Draft untuk direview. Estimasi waktu bersifat kasar dan perlu disesuaikan dengan waktu luang nyata.
+**Versi:** 0.6 (draft) · **Tanggal:** 1 Oktober 2026 · **Pemilik:** Household Admin **Status:** Draft untuk direview. Estimasi waktu bersifat kasar dan perlu disesuaikan dengan waktu luang nyata.
 
 ---
 
@@ -39,7 +39,7 @@ Aplikasi web privat untuk dua pengguna (suami dan istri) guna mengelola keuangan
 
 | Peran | Deskripsi |
 | --- | --- |
-| Admin household | Pembuat household (Reynaldi). Mengundang pasangan, mengelola kategori dan pengaturan. |
+| Admin household | Pembuat household (Kepala Keluarga). Mengundang pasangan, mengelola kategori dan pengaturan. |
 | Anggota | Pasangan. Hak CRUD yang sama atas data bersama. |
 
 Hanya dua pengguna, dua-duanya memakai ponsel sebagai perangkat utama.

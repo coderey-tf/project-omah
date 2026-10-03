@@ -11,7 +11,7 @@ import crypto from "crypto";
 export async function uploadDocumentAction(formData: FormData) {
   try {
     const household = await getOrCreateDefaultHousehold();
-    const currentProfile = household.profiles[0]; // Reynaldi (Admin)
+    const currentProfile = household.profiles[0]; // Admin Profile
 
     const file = formData.get("file") as File | null;
     const title = (formData.get("title") as string)?.trim();

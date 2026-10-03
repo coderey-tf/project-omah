@@ -38,7 +38,7 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
           setError(res.error || "Gagal masuk. Periksa kembali email dan kata sandi Anda.");
         }
       } else {
-        const res = await signUpAction(email, password, displayName || "Reynaldi");
+        const res = await signUpAction(email, password, displayName || "Admin");
         if (res.success) {
           if (res.needEmailConfirmation) {
             setSuccessMessage("Pendaftaran berhasil! Cek email Anda untuk konfirmasi tautan masuk.");
@@ -110,7 +110,7 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
             </span>
           </div>
           <p className="text-[11px] text-text-black-soft">
-            Masuk langsung sebagai <b>Reynaldi (Admin)</b> tanpa perlu konfigurasi email/password.
+            Masuk langsung sebagai <b>Admin (Kepala Keluarga)</b> tanpa perlu konfigurasi email/password.
           </p>
           <button
             type="button"
@@ -199,7 +199,7 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: Reynaldi"
+                  placeholder="Contoh: Suami / Istri"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 text-xs rounded-[8px] border border-border-input bg-canvas text-text-black placeholder:text-text-black-soft focus:outline-none focus:border-green-accent transition-all"

@@ -153,7 +153,7 @@ pnpm dev
 Open **`http://localhost:3000`** in your browser.
 
 > **⚡ Rapid Testing Tip:**  
-> If you haven't configured Supabase email authentication yet, you can test all features immediately by clicking **"⚡ Masuk Cepat Akun Testing (Reynaldi / Admin)"** on the `/login` screen.
+> If you haven't configured Supabase email authentication yet, you can test all features immediately by clicking **"⚡ Masuk Cepat Akun Testing (Admin / Demo)"** on the `/login` screen.
 
 ---
 
@@ -193,10 +193,10 @@ Contributions, feature ideas, and bug reports are welcome!
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
+Distributed under the **MIT License**. Copyright (c) 2026 **CODEREY STUDIO**. See [`LICENSE`](LICENSE) for more details.
 
 ---
 
 <div align="center">
-  <p>Built with ❤️ for happy and organized households.</p>
+  <p>Built with ❤️ by <strong>CODEREY STUDIO</strong> for happy and organized households.</p>
 </div>

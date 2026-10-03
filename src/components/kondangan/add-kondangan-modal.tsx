@@ -286,7 +286,7 @@ export function AddKondanganModal({
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="cth: Teman kantor Reynaldi, Sepupu Mama"
+              placeholder="cth: Teman kantor Suami, Sepupu Mama"
               className="w-full px-3.5 py-2 rounded-xl border border-border-card bg-canvas/30 focus:outline-none focus:ring-2 focus:ring-starbucks-green text-text-black text-xs"
             />
           </div>

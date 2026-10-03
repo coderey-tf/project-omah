@@ -176,7 +176,7 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess }: UploadDocume
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contoh: KTP Reynaldi, Akta Nikah, Polis Sinarmas"
+              placeholder="Contoh: KTP Suami, Akta Nikah, Polis Sinarmas"
               className="w-full px-4 py-2.5 rounded-xl border border-border-card bg-canvas/30 focus:outline-none focus:ring-2 focus:ring-starbucks-green text-text-black placeholder:text-text-black-soft/60"
             />
           </div>

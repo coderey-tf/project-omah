@@ -272,9 +272,9 @@ export async function loginWithTestingAccountAction() {
       "omah_session",
       JSON.stringify({
         id: "admin-test-id",
-        displayName: "Reynaldi",
+        displayName: "Admin",
         role: "ADMIN",
-        email: "reynaldi@omah.local",
+        email: "admin@omah.local",
       }),
       {
         httpOnly: true,
@@ -309,7 +309,7 @@ export async function signInAction(email: string, password: string) {
         "omah_session",
         JSON.stringify({
           id: "admin-test-id",
-          displayName: email.split("@")[0] || "Reynaldi",
+          displayName: email.split("@")[0] || "Admin",
           role: "ADMIN",
           email,
         }),
@@ -367,7 +367,7 @@ export async function signUpAction(email: string, password: string, displayName:
         "omah_session",
         JSON.stringify({
           id: "admin-test-id",
-          displayName: displayName.trim() || "Reynaldi",
+          displayName: displayName.trim() || "Admin",
           role: "ADMIN",
           email,
         }),

@@ -8,7 +8,7 @@ web
 
 ## Users
 
-Two users only — a married couple (husband and wife, post-wedding). Both use mobile phones as their primary device. One user (Reynaldi) is the admin who creates the household; the partner joins via a one-time invitation link. There are no other user types and no plan to expand beyond two people.
+Two users only — a married couple (husband and wife, post-wedding). Both use mobile phones as their primary device. One user is the admin who creates the household; the partner joins via a one-time invitation link. There are no other user types and no plan to expand beyond two people.
 
 ## Product Purpose
 

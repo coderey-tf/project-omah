@@ -16,17 +16,17 @@ export async function getOrCreateDefaultHousehold() {
     const adminProfileId = crypto.randomUUID();
     const partnerProfileId = crypto.randomUUID();
 
-    // Seed default household for Reynaldi & Partner
+    // Seed default household for Admin & Partner
     household = await prisma.household.create({
       data: {
-        name: "Keluarga Reynaldi",
+        name: "Keluarga Bahagia",
         periodStartDay: 1,
         icalToken: crypto.randomUUID(),
         profiles: {
           create: [
             {
               id: adminProfileId,
-              displayName: "Reynaldi",
+              displayName: "Suami",
               role: "ADMIN",
             },
             {

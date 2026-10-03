@@ -499,7 +499,7 @@ export function RemindersView({ initialReminders }: RemindersViewProps) {
                 </label>
                 <input
                   type="text"
-                  placeholder="Contoh: Pajak Tahunan STNK Honda Vario, Paspor Reynaldi"
+                  placeholder="Contoh: Pajak Tahunan STNK Honda Vario, Paspor Suami"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
                   className="w-full rounded-[10px] bg-canvas border border-border-card px-3.5 py-2 text-xs text-text-black focus:outline-none focus:ring-1 focus:ring-starbucks-green"

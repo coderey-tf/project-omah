@@ -336,8 +336,8 @@ API endpoint yang menghasilkan file CSV untuk transaksi, anggaran, dan tagihan. 
 
 ```csv
 Tanggal,Tipe,Jumlah,Kategori,Dompet,Catatan,Pencatat
-01/10/2026,EXPENSE,50000,Makan,Dompet Kas,Makan siang,Reynaldi
-01/10/2026,INCOME,5000000,Gaji,BCA,Gaji Oktober,Reynaldi
+01/10/2026,EXPENSE,50000,Makan,Dompet Kas,Makan siang,Suami
+01/10/2026,INCOME,5000000,Gaji,BCA,Gaji Oktober,Suami
 ```
 
 ---

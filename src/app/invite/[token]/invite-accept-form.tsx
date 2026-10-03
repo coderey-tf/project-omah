@@ -93,7 +93,7 @@ export function InviteAcceptForm({
           <input
             type="text"
             required
-            placeholder="Contoh: Istri / Sarah / Reyna"
+            placeholder="Contoh: Istri / Sarah / Pasangan"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-xs rounded-[8px] border border-border-input bg-canvas text-text-black placeholder:text-text-black-soft focus:outline-none focus:border-green-accent"
