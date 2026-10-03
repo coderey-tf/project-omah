@@ -1,204 +1,202 @@
-# ☕ Omah — Sistem Manajemen Keluarga Privat
+<div align="center">
+  <img src="public/icons/icon.svg" alt="Omah Logo" width="80" height="80" />
+  <h1>Omah — Open-Source Private Family Management System</h1>
+  <p><strong>A self-hosted, mobile-first household operating system for couples. Seamlessly manage joint finances, shopping checklists, daily chores, document vaults, and automated renewal reminders.</strong></p>
 
-> **Aplikasi web privat mobile-first untuk dua pengguna (suami dan istri) guna mengelola keuangan rumah tangga, daftar belanja, pembagian tugas harian, brankas dokumen penting, serta pengingat jatuh tempo otomatis.**
+  <p>
+    <a href="#key-features">Features</a> •
+    <a href="#quickstart">Quickstart</a> •
+    <a href="#self-hosting">Self-Hosting</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#contributing">Contributing</a> •
+    <a href="#license">License</a>
+  </p>
 
-[![Next.js 16](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)](https://nextjs.org/)
-[![Prisma 7](https://img.shields.io/badge/Prisma-7.10-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%26%20Realtime-3ECF8E?logo=supabase)](https://supabase.com/)
-[![Tailwind CSS v4](https://img.shields.io/badge/TailwindCSS-v4.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![License: Private](https://img.shields.io/badge/License-Private-1E3932)](#)
-
----
-
-## 📌 Latar Belakang & Filosofi Desain
-
-**Omah** (dari bahasa Jawa yang berarti *Rumah*) dibangun untuk menyelesaikan masalah pencatatan keuangan dan tanggung jawab rumah tangga yang kerap tercecer di chat pribadi, catatan terpisah, atau sekadar ingatan kepala masing-masing yang memicu kesalahpahaman atau tagihan terlewat.
-
-### Prinsip Utama Produk:
-1. **Input Kurang dari 10 Detik:** Pencatatan transaksi harian dioptimalkan untuk perangkat ponsel dengan modal input cepat (*Quick Transaction Modal*) dan nilai default cerdas.
-2. **Fitur Esensial & Fokus:** Berisi fitur-fitur yang benar-benar dipakai sehari-hari, bukan sekadar pelengkap yang akhirnya ditinggalkan.
-3. **Privat & Khusus 2 Anggota:** Dirancang secara ketat untuk batas maksimal 2 anggota keluarga (`ADMIN` dan `MEMBER`) dengan hak visibilitas penuh tanpa mode transaksi rahasia.
-4. **Keamanan Bertingkat:** Tanpa penyimpanan nomor rekening penuh/NIK sensitif di fase awal, hash token satu arah (SHA-256) untuk undangan, dan pembatasan isolasi tenant berbasis `household_id`.
-
----
-
-## 🎨 Estetika Desain: *Starbucks Heritage Edition*
-
-Antarmuka Omah mengadopsi palet warna hangat, bersahaja, dan premium yang terinspirasi dari **Starbucks Heritage**:
-
-- **House Green (`#1E3932`):** Warna hijau hutan gelap yang elegan untuk header, judul serif, dan elemen dominan.
-- **Starbucks Green (`#006241`):** Aksen hijau ikonik untuk tombol utama, indikator aktif, dan status sukses.
-- **Warm Cream / Canvas (`#F2F0EB`):** Latar belakang kanvas yang menenangkan mata dan ramah layar AMOLED.
-- **Warm Gold & Bronze (`#CBA258` / `#C87A54`):** Warna kontras untuk peringatan anggaran, tenggat jatuh tempo, dan grafik pengeluaran.
-- **Dual Elevation & Smooth Borders:** Sudut kartu beradius `12px` hingga `16px` dengan bayangan bertingkat lembut (*Starbucks Card Elevation*).
+  <p>
+    <a href="https://github.com/coderey-tf/project-omah/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-006241.svg?style=flat-square" alt="License: MIT" /></a>
+    <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16.0-black?style=flat-square&logo=next.js" alt="Next.js 16" /></a>
+    <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-7.10-2D3748?style=flat-square&logo=prisma" alt="Prisma 7" /></a>
+    <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-Database%20%26%20Realtime-3ECF8E?style=flat-square&logo=supabase" alt="Supabase" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-v4.0-38B2AC?style=flat-square&logo=tailwind-css" alt="Tailwind CSS" /></a>
+    <a href="https://github.com/coderey-tf/project-omah/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome" /></a>
+  </p>
+</div>
 
 ---
 
-## 🚀 Fitur & Modul Utama
+## 💡 Why Omah?
 
-### 1. 💰 Manajemen Keuangan & Anggaran
-- **Transaksi Cepat (< 10 Detik):** Pencatatan instan *Pemasukan*, *Pengeluaran*, dan *Transfer Dompet* dengan validasi otomatis.
-- **Dompet Saldo Dinamis:** Saldo kas, rekening bank, dan e-wallet dihitung secara matematis dari `opening_balance + total transaksi aktif` untuk mencegah inkonsistensi saldo.
-- **Siklus Anggaran Periode Kustom:** Anggaran bulanan berbasis tanggal gajian rumah tangga (misal: tiap tanggal 25) dengan pelacakan persentase terpakai serta peringatan otomatis ambang batas 80% dan 100%.
-- **Tagihan Berulang & Konfirmasi Bayar:** Jadwal tagihan rutin (listrik, internet, air, dll.) dengan status *Lunas / Belum Bayar* tiap siklus dan opsi pencatatan transaksi otomatis saat ditandai lunas.
-- **Target Tabungan (*Savings Goals*):** Pelacakan tabungan bersama untuk liburan, dana darurat, atau renovasi rumah lengkap dengan progress bar persentase.
+Managing household finances and domestic responsibilities with spreadsheets, disjointed chat threads, or complicated enterprise expense trackers often leads to friction:
+- **Commercial apps** are bloated with ads, require paid multi-user subscriptions, or demand invasive bank-linking permissions.
+- **Generic to-do apps** lack household financial context (budgeting periods, bill confirmation, asset service tracking).
+- **Manual spreadsheets** are slow on mobile devices, making daily expense tracking inconsistent.
 
-### 2. 🛒 Belanja Bersama & Tugas Rumah
-- **Daftar Belanja (*Real-time Checklist*):** Item belanja pasar atau supermarket yang tersinkronisasi instan antar perangkat suami dan istri.
-- **Pembagian Tugas Rumah (*Household Tasks*):** Pengaturan PIC penanggung jawab tugas, tanggal tenggat, frekuensi pengulangan (harian/mingguan), dan filter *Tugas Saya vs Tugas Pasangan*.
-
-### 3. ⏰ Pengingat Jatuh Tempo & Feed Kalender
-- **Pengingat Dokumen Berkala:** Notifikasi sebelum jatuh tempo untuk Pajak Kendaraan, Perpanjangan STNK, SIM, Polis Asuransi Jiwa/Kesehatan, dan Masa Berlaku Garansi.
-- **Sinkronisasi iCal (Google Calendar / Apple Calendar):** Setiap rumah tangga memiliki URL rahasia feed iCal untuk berlangganan pengingat langsung di aplikasi kalender ponsel.
-
-### 4. 📂 Brankas Dokumen & Inventaris Aset (Fase 2)
-- **Brankas Dokumen Keluarga (`/vault`):** Penyimpanan aman salinan identitas (KTP, KK, Akta Nikah), sertifikat rumah/tanah, berkas kendaraan, dan polis asuransi.
-- **Aset & Riwayat Servis (`/assets`):** Katalog barang berharga, masa garansi elektronik, dan riwayat ganti oli / perawatan berkala kendaraan.
-- **Catatan Angpao & Kondangan (`/kondangan`):** Buku tamu digital timbal balik amplop/hadiah hajatan kerabat untuk menjaga hubungan sosial kekeluargaan.
-- **Meal Planner Mingguan (`/meals`):** Rencana menu sarapan, makan siang, dan makan malam keluarga yang dapat langsung di-ekspor ke daftar belanja dapur dalam satu klik.
-- **Laporan & Tren Tahunan (`/analytics`):** Grafik garis interaktif Catmull-Rom Bezier SVG untuk memantau tren arus kas bulanan secara responsif.
-
-### 5. 🤖 Multi-Channel Notifications (Telegram & WhatsApp)
-- **Bot Telegram Terenkripsi:** Menerima pengingat harian jatuh tempo tagihan (H-3 dan H-0) serta perintah cepat interaktif (`/saldo`, `/tagihan`, `/tugas`).
-- **Kanal WhatsApp via WAHA Gateway:** Notifikasi langsung ke nomor WhatsApp suami dan istri via REST gateway mandiri, lengkap dengan webhook dua arah.
-- **Vercel Cron Harian:** Penjadwalan otomatis setiap pukul **08:00 WIB** (`01:00 UTC`) yang idempoten dan menjalankan *keepalive ping* database Supabase free tier.
+**Omah** (Javanese for *"Home"*) is purposefully designed as a lightweight, private, self-hosted web app built exclusively for **two partners (Husband & Wife / Couples)**. It focuses on speed (<10 seconds to log an expense), shared transparency, and elegant daily habits.
 
 ---
 
-## 🛠️ Tech Stack & Arsitektur
+## ✨ Key Features
 
-| Komponen | Teknologi | Keterangan |
-|---|---|---|
-| **Framework** | Next.js 16 (App Router) | Server Components, Server Actions, Dynamic Routes |
-| **Bahasa** | TypeScript | *Strict type safety* di seluruh lapisan aplikasi |
-| **Database & ORM** | PostgreSQL (Supabase) + Prisma 7 | Menggunakan driver adapter `@prisma/adapter-pg` |
-| **Otentikasi** | Supabase Auth + Session Cookie | Dukungan Magic Link, Password, dan Mode Akun Testing |
-| **Realtime** | Supabase Realtime Channels | Sinkronisasi instan daftar belanja & tugas rumah |
-| **Styling** | Tailwind CSS v4 + Vanilla CSS | Desain kustom bertema Starbucks Heritage |
-| **Ikon** | Lucide React | Ikon modern, ringan, dan konsisten |
-| **Integrasi Notifikasi** | Telegram Bot API & WAHA (WhatsApp) | Abstraksi *multi-channel notification dispatcher* |
-| **Cron Job** | Vercel Cron (`vercel.json`) | Pemrosesan pengingat harian & Supabase keepalive |
+### 💰 Household Finance & Custom Budgets
+- **Sub-10s Expense Logging:** Fast, mobile-optimized quick-add modal with smart defaults (current date, last-used wallet).
+- **Dynamic Wallet Balances:** Math-driven balance calculation (`opening_balance + sum(active_tx)`) ensuring zero database drift.
+- **Payday-Aligned Budget Periods:** Set your household budget cycle starting from your actual payday (e.g. 25th of each month) instead of rigid calendar months.
+- **Recurring Bills & 1-Click Settlement:** Track monthly/yearly utilities (WiFi, electricity, maintenance) with cycle payment status and automatic expense creation.
+- **Interactive Cashflow Line Chart:** Responsive Catmull-Rom Bezier SVG curve visualizing income vs. expenses with hover details.
+- **Shared Savings Goals:** Visual progress bars for joint family milestones (vacation fund, emergency savings, home renovation).
+
+### 🛒 Real-time Shopping & Domestic Tasks
+- **Shared Grocery List:** Instant real-time checklist powered by Supabase Realtime Channels. What you check off at the market syncs to your partner's phone in seconds.
+- **Chore Delegation & Recurrence:** Assign tasks to yourself or your partner with recurring schedules (daily, weekly, monthly).
+
+### 🛡️ Private Family Vault & Asset Registry
+- **Encrypted Document Vault (`/vault`):** Private digital copies of IDs (KTP, Family Cards, Passports), vehicle titles (BPKB/STNK), land deeds, and insurance policies.
+- **Asset, Warranty & Maintenance Log (`/assets`):** Catalog household valuables, electronics warranties, and vehicle service histories.
+- **Social Ledger / Angpao Tracker (`/kondangan`):** Digital log of gift envelopes received and given during family and friends' celebrations.
+- **Weekly Meal Planner (`/meals`):** Plan breakfast, lunch, and dinner for the week and push ingredients straight to your grocery shopping list with one tap.
+
+### 🔔 Smart Multi-Channel Notifications
+- **Telegram Bot Integration:** Daily 08:00 AM reminders for upcoming bills (H-3 and H-0) and expiration dates, with interactive commands (`/saldo`, `/tagihan`, `/tugas`, `/belanja`).
+- **WhatsApp Gateway (WAHA):** Connect your WhatsApp numbers to receive notifications and check household statuses via natural WhatsApp chat commands.
+- **iCal Subscription Feed:** Sync household bill due dates and document renewals directly into Google Calendar, Apple Calendar, or Outlook via a secure private feed URL.
 
 ---
 
-## 📁 Struktur Direktori Project
+## 🎨 Design System: *Starbucks Heritage Edition*
 
-```text
-project-omah/
-├── prisma/
-│   ├── schema.prisma            # Skema relasional PostgreSQL (16 tabel bisnis)
-│   ├── migrations/              # Riwayat migrasi Prisma Migrate
-│   └── constraints.sql          # CHECK constraints & aturan integritas data
-├── public/
-│   ├── icons/                   # Ikon PWA maskable (192px, 512px, SVG)
-│   └── site.webmanifest
-├── src/
-│   ├── actions/                 # Next.js Server Actions (Auth, Bills, Tasks, dsb.)
-│   ├── app/                     # Next.js App Router Pages & Route Handlers
-│   │   ├── (auth)/login/        # Halaman autentikasi & Masuk Akun Testing
-│   │   ├── analytics/           # Laporan tren tahunan & Line Chart
-│   │   ├── api/                 # API Cron, iCal Feed, Webhook WA & Telegram, Export CSV
-│   │   ├── assets/              # Manajemen aset & riwayat servis
-│   │   ├── invite/[token]/      # Halaman penerimaan undangan pasangan
-│   │   ├── kondangan/           # Catatan angpao & amplop hajatan
-│   │   ├── meals/               # Meal planner mingguan
-│   │   ├── reminders/           # Pengingat tanggal jatuh tempo dokumen
-│   │   ├── settings/            # Pengaturan keluarga, notifikasi, & anggota
-│   │   ├── shopping/            # Daftar belanja bersama
-│   │   ├── tasks/               # Pembagian tugas rumah tangga
-│   │   ├── transactions/        # Riwayat & filter transaksi keuangan
-│   │   ├── vault/               # Brankas dokumen keluarga
-│   │   ├── layout.tsx           # Root layout & penyedia font Google
-│   │   ├── manifest.ts          # Konfigurasi PWA Web App Manifest
-│   │   └── page.tsx             # Dashboard ringkasan (Tab Keuangan & Aktivitas)
-│   ├── components/              # Komponen UI modular
-│   │   ├── analytics/           # SVG Catmull-Rom Cashflow Line Chart
-│   │   ├── dashboard/           # Widget saldo, anggaran, tagihan, tab aktivitas
-│   │   ├── layout/              # Header, Bottom Navigation, Desktop Sidebar, FAB
-│   │   └── settings/            # Kartu saluran notifikasi WA/Telegram, profile card
-│   ├── lib/
-│   │   ├── data/                # Data-Access Layer terpusat (tenant-scoped queries)
-│   │   ├── notifications/       # Driver Telegram Bot & WAHA WhatsApp Gateway
-│   │   ├── supabase/            # Client & server helpers Supabase Auth
-│   │   ├── prisma.ts            # Prisma Client singleton dengan adapter pooler
-│   │   └── utils.ts             # Formatter Rupiah, manipulasi tanggal WIB, styling
-│   └── proxy.ts                 # Next.js 16 Route Protection Proxy (pengganti middleware)
-├── docker-compose.waha.yml       # Docker Compose untuk menjalankan WAHA lokal
-├── vercel.json                  # Penjadwal Vercel Cron harian
-└── .env.example                 # Template variabel lingkungan
+Omah features a warm, calming aesthetic tailored for daily use without visual fatigue:
+- **House Green (`#1E3932`)** — Timeless dark forest green for primary typography and brand identity.
+- **Starbucks Green (`#006241`)** — Signature accent green for buttons, active indicators, and success states.
+- **Warm Canvas (`#F2F0EB`)** — Soothing, eye-friendly off-white background.
+- **Warm Gold & Bronze (`#CBA258` / `#C87A54`)** — Highlighting budget alerts, deadlines, and expense curves.
+- **Delicate Card Elevating & Smooth Radii** — `12px` to `16px` rounded corners with dual-layer soft elevation.
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+```mermaid
+graph TD
+    Client[📱 Mobile Browser / PWA] -->|HTTPS / WSS| App[⚡ Next.js 16 App Router]
+    App -->|Prisma 7 + PG Driver Adapter| DB[(🐘 Supabase PostgreSQL)]
+    App -->|Realtime Channels| RT[⚡ Supabase Realtime]
+    App -->|Session Cookie / Auth| Auth[🔐 Supabase Auth]
+    App -->|Private Storage| Storage[📦 Supabase Storage]
+    Cron[⏰ Vercel Cron / Daily 08:00 WIB] -->|Secret Authorized GET| App
+    App -->|HTTPS Webhook / REST| TG[🤖 Telegram Bot API]
+    App -->|REST API| WAHA[💬 WAHA WhatsApp Gateway]
 ```
 
+| Layer | Technology | Details |
+|---|---|---|
+| **Frontend & SSR** | Next.js 16 (App Router) | React Server Components, Server Actions, Route Protection Proxy |
+| **Styling** | Tailwind CSS v4 | Custom Starbucks Heritage color tokens, responsive utilities |
+| **ORM & Database** | Prisma 7 + PostgreSQL | `@prisma/adapter-pg` connection pooler, custom SQL constraints |
+| **BaaS Platform** | Supabase | Free-tier compatible PostgreSQL, Realtime WebSocket, Storage |
+| **Notification Engine**| Telegram Bot API & WAHA | Multi-channel broadcast dispatcher with idempotent logging |
+| **Deployment** | Vercel | Vercel Cron, Edge runtime optimizations |
+
 ---
 
-## ⚙️ Panduan Menjalankan Project (Lokal)
+## 🚀 Quickstart (Local Development)
 
-### 1. Prasyarat
-- **Node.js:** Versi `20.x` atau lebih baru
-- **Package Manager:** `pnpm` versi `9.x` atau lebih baru
-- **Database:** PostgreSQL (disarankan proyek gratis di [Supabase](https://supabase.com))
-- **Docker:** (Opsional, hanya jika ingin menjalankan gateway WhatsApp WAHA lokal)
+### 1. Prerequisites
+- **Node.js** `20.x` or higher
+- **pnpm** `9.x` or higher (`npm install -g pnpm`)
+- A free **[Supabase](https://supabase.com/)** PostgreSQL project
 
-### 2. Kloning & Instalasi Dependensi
+### 2. Clone and Install
 ```bash
-git clone https://github.com/username/project-omah.git
+git clone https://github.com/coderey-tf/project-omah.git
 cd project-omah
 pnpm install
 ```
 
-### 3. Konfigurasi Variabel Lingkungan (`.env`)
-Salin file template `.env.example` ke `.env`:
+### 3. Configure Environment Variables
+Copy the `.env.example` file:
 ```bash
 cp .env.example .env
 ```
-Isi konfigurasi database dan API key Anda:
+Fill in your Supabase connection strings and secrets in `.env`:
 ```env
-# Koneksi Database Supabase PostgreSQL
+# Supabase PostgreSQL Database (Transaction Pooler & Direct)
 DATABASE_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
 DIRECT_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
 
-# Supabase Auth & Storage
+# Supabase Public API & Auth
 NEXT_PUBLIC_SUPABASE_URL="https://[REF].supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
 SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
 
-# Vercel Cron Token
-CRON_SECRET="your-cron-secret-token"
+# Vercel Cron Secret (Secures /api/cron/daily)
+CRON_SECRET="your-secure-cron-secret"
 
-# Notifikasi Telegram Bot (Opsional)
-TELEGRAM_BOT_TOKEN="your-bot-token"
-TELEGRAM_BOT_USERNAME="OmahFamilyBot"
+# Telegram Bot (Optional)
+TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
+TELEGRAM_BOT_USERNAME="YourFamilyBot"
 TELEGRAM_WEBHOOK_SECRET="your-webhook-secret"
 
-# Notifikasi WhatsApp WAHA (Opsional)
+# WhatsApp Gateway via WAHA (Optional)
 WAHA_BASE_URL="http://localhost:3008"
 WAHA_API_KEY="your-waha-api-key"
 ```
 
-### 4. Migrasi Database Prisma
-Jalankan migrasi skema ke database Supabase Anda:
+### 4. Push Database Schema
 ```bash
 pnpm prisma migrate dev
 ```
 
-### 5. Jalankan Server Pengembangan
+### 5. Start Development Server
 ```bash
 pnpm dev
 ```
-Buka browser di **`http://localhost:3000`**.
+Open **`http://localhost:3000`** in your browser.
 
-> **💡 Tips Pengujian Cepat:**  
-> Jika belum mengonfigurasi email Supabase, Anda dapat langsung mengklik tombol **"⚡ Masuk Cepat Akun Testing (Reynaldi / Admin)"** di halaman `/login` untuk langsung masuk ke dashboard dengan sesi simulasi penuh.
-
----
-
-## 🔒 Keamanan & Hak Akses
-
-1. **Aturan Filter Tenant (Household Scoping):** Setiap query ke database wajib difilter dengan `householdId` yang tervalidasi dari sesi login aktif. Klien tidak pernah diizinkan mengirim `householdId` secara langsung.
-2. **Hash Token Undangan:** Tautan undangan anggota keluarga (`/invite/[token]`) disimpan dalam bentuk digest hash **SHA-256**, memiliki masa berlaku 7 hari, dan dibatasi maksimal 2 anggota per keluarga.
-3. **Penyimpanan Dokumen:** Berkas di Brankas Dokumen disimpan dalam bucket privat Supabase Storage dengan penamaan berbasis prefix `household_id/uuid`.
+> **⚡ Rapid Testing Tip:**  
+> If you haven't configured Supabase email authentication yet, you can test all features immediately by clicking **"⚡ Masuk Cepat Akun Testing (Reynaldi / Admin)"** on the `/login` screen.
 
 ---
 
-## 📜 Lisensi & Penggunaan
+## 🐳 Running WhatsApp Gateway (WAHA) with Docker (Optional)
 
-Proyek ini dibangun secara privat untuk kebutuhan internal pengelolaan rumah tangga dan keluarga. Seluruh hak cipta dan kode sumber dilindungi secara privat.
+To enable WhatsApp notifications and two-way interactive commands:
+
+```bash
+docker compose -f docker-compose.waha.yml up -d
+```
+1. Open the WAHA Dashboard at `http://localhost:3008/dashboard`.
+2. Scan the QR code with your dedicated WhatsApp bot number.
+3. Link your number on Omah's `/settings` page.
+
+---
+
+## 🚢 Production Deployment (Vercel)
+
+1. Push your repository to GitHub.
+2. Import the repository into **[Vercel](https://vercel.com)**.
+3. Configure the environment variables in your Vercel project settings matching your production Supabase instance.
+4. Vercel will automatically detect `vercel.json` and schedule the daily reminder cron at 08:00 AM WIB (`01:00 UTC`).
+
+---
+
+## 🤝 Contributing
+
+Contributions, feature ideas, and bug reports are welcome!
+
+1. Fork the Project (`https://github.com/coderey-tf/project-omah/fork`)
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
+
+---
+
+<div align="center">
+  <p>Built with ❤️ for happy and organized households.</p>
+</div>
