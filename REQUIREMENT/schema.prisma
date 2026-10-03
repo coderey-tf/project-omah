@@ -1,0 +1,481 @@
+// =============================================================================
+// Sistem Manajemen Keluarga - skema Prisma (turunan PRD v0.4)
+//
+// CATATAN PENTING
+// 1. Otorisasi: SEMUA query harus difilter householdId dari sesi (data-access
+//    layer). Prisma memakai role database langsung sehingga RLS tidak
+//    menjaga query Prisma. Prisma juga TIDAK bisa memastikan walletId /
+//    categoryId yang dikirim klien milik household yang sama: verifikasi di
+//    aplikasi sebelum insert/update.
+// 2. Nominal: BigInt rupiah (tanpa desimal). BigInt tidak bisa di-JSON-kan
+//    langsung; konversi ke number (aman di bawah 2^53) di lapisan data.
+// 3. Tanggal bisnis (occurredOn, dueDate, effectiveFrom) memakai tipe Date
+//    (tanpa jam) agar batas periode tidak bergeser karena UTC vs WIB. Saat
+//    menulis, buat Date dari tanggal WIB sebagai UTC tengah malam.
+// 4. CHECK constraint, trigger append-only, dan RLS tidak bisa ditulis di
+//    Prisma: lihat constraints.sql (dijalankan sebagai migrasi kustom).
+// 5. Versi Prisma: validator terbaru menolak url/directUrl di datasource, jadi
+//    URL dipindah ke prisma.config.ts. Detail generator dan adapter
+//    bergantung versi yang Anda pasang: PERLU VERIFIKASI terhadap dokumentasi.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// URL koneksi TIDAK ditulis di sini (Prisma versi terbaru menolak url/directUrl
+// di schema.prisma). Migrate memakai prisma.config.ts; runtime memakai driver
+// adapter dengan URL pooler Supabase (lihat prisma.config.ts dan lib/prisma.ts).
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// Enum
+// -----------------------------------------------------------------------------
+
+enum MemberRole {
+  ADMIN
+  MEMBER
+}
+
+enum WalletType {
+  CASH
+  BANK
+  EWALLET
+  OTHER
+}
+
+enum CategoryKind {
+  EXPENSE
+  INCOME
+}
+
+enum TransactionType {
+  EXPENSE
+  INCOME
+  TRANSFER
+}
+
+enum BillPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum Recurrence {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum NotificationChannelType {
+  TELEGRAM
+  WHATSAPP
+}
+
+enum NotificationEntity {
+  BILL
+  REMINDER
+  BUDGET
+}
+
+enum NotificationStatus {
+  SENT
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+// -----------------------------------------------------------------------------
+// Household, anggota, undangan
+// -----------------------------------------------------------------------------
+
+model Household {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  /// Tanggal mulai periode anggaran (1-28), satu nilai per household.
+  periodStartDay Int      @default(1) @map("period_start_day") @db.SmallInt
+  /// Token rahasia URL feed iCal. Diisi aplikasi (crypto.randomBytes), bukan default DB.
+  icalToken      String   @unique @map("ical_token")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  profiles         Profile[]
+  invitations      Invitation[]
+  wallets          Wallet[]
+  categories       Category[]
+  transactions     Transaction[]
+  budgets          Budget[]
+  recurringBills   RecurringBill[]
+  savingsGoals     SavingsGoal[]
+  shoppingLists    ShoppingList[]
+  shoppingItems    ShoppingItem[]
+  tasks            Task[]
+  reminders        Reminder[]
+  notificationLogs NotificationLog[]
+  auditLogs        AuditLog[]
+
+  @@map("households")
+}
+
+/// id = auth.users.id (Supabase Auth). Tanpa FK ke skema auth; baris dibuat
+/// aplikasi saat pengguna membuat household atau menerima undangan.
+model Profile {
+  id          String     @id @db.Uuid
+  householdId String     @map("household_id") @db.Uuid
+  displayName String     @map("display_name")
+  role        MemberRole @default(MEMBER)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household           Household             @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  channels            NotificationChannel[]
+  notificationLogs    NotificationLog[]
+  createdTransactions Transaction[]         @relation("TransactionCreatedBy")
+  assignedTasks       Task[]                @relation("TaskAssignee")
+  checkedItems        ShoppingItem[]        @relation("ItemCheckedBy")
+  auditLogs           AuditLog[]
+  invitationsCreated  Invitation[]          @relation("InvitationCreatedBy")
+  invitationsUsed     Invitation[]          @relation("InvitationUsedBy")
+
+  @@index([householdId])
+  @@map("profiles")
+}
+
+/// Undangan sekali pakai. Simpan hash token, bukan token mentah.
+/// Batas maksimal 2 anggota per household ditegakkan di aplikasi.
+model Invitation {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String    @map("household_id") @db.Uuid
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt      DateTime? @map("used_at") @db.Timestamptz(3)
+  usedById    String?   @map("used_by_id") @db.Uuid
+  createdById String    @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdBy Profile   @relation("InvitationCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  usedBy    Profile?  @relation("InvitationUsedBy", fields: [usedById], references: [id], onDelete: SetNull)
+
+  @@index([householdId])
+  @@map("invitations")
+}
+
+// -----------------------------------------------------------------------------
+// Keuangan
+// -----------------------------------------------------------------------------
+
+/// Saldo saat ini TIDAK disimpan: hitung dari openingBalance + transaksi aktif
+/// (pemasukan - pengeluaran +/- transfer). Menghindari saldo yang melenceng.
+model Wallet {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId    String     @map("household_id") @db.Uuid
+  name           String
+  type           WalletType @default(CASH)
+  openingBalance BigInt     @default(0) @map("opening_balance")
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt      DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  household Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  txFrom    Transaction[] @relation("TxWallet")
+  txTo      Transaction[] @relation("TxToWallet")
+
+  @@index([householdId])
+  @@map("wallets")
+}
+
+/// Kategori yang sudah dipakai tidak dihapus, cukup diarsipkan.
+model Category {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String       @map("household_id") @db.Uuid
+  name        String
+  kind        CategoryKind
+  icon        String?
+  isArchived  Boolean      @default(false) @map("is_archived")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household      Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  budgets        Budget[]
+  recurringBills RecurringBill[]
+
+  @@unique([householdId, kind, name])
+  @@index([householdId])
+  @@map("categories")
+}
+
+/// amount selalu positif; arah ditentukan oleh type.
+/// TRANSFER: toWalletId wajib, categoryId kosong. Selain itu: categoryId wajib,
+/// toWalletId kosong (ditegakkan CHECK di constraints.sql).
+/// Soft delete lewat deletedAt: semua query harus memfilter deletedAt = null
+/// (Prisma tidak punya filter global; pertimbangkan client extension).
+/// onDelete NoAction: wallet/kategori yang masih dipakai tidak bisa dihapus,
+/// tetapi penghapusan household tetap bisa mengalir lewat cascade.
+model Transaction {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String          @map("household_id") @db.Uuid
+  type        TransactionType
+  amount      BigInt
+  categoryId  String?         @map("category_id") @db.Uuid
+  walletId    String          @map("wallet_id") @db.Uuid
+  toWalletId  String?         @map("to_wallet_id") @db.Uuid
+  /// Tanggal transaksi menurut WIB (tanpa jam).
+  occurredOn  DateTime        @map("occurred_on") @db.Date
+  note        String?
+  createdById String          @map("created_by_id") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: NoAction)
+  wallet    Wallet    @relation("TxWallet", fields: [walletId], references: [id], onDelete: NoAction)
+  toWallet  Wallet?   @relation("TxToWallet", fields: [toWalletId], references: [id], onDelete: NoAction)
+  createdBy Profile   @relation("TransactionCreatedBy", fields: [createdById], references: [id], onDelete: NoAction)
+
+  @@index([householdId, occurredOn(sort: Desc)])
+  @@index([householdId, categoryId, occurredOn])
+  @@index([walletId])
+  @@index([toWalletId])
+  @@map("transactions")
+}
+
+/// Batas per kategori yang berlaku mulai periode yang memuat effectiveFrom
+/// dan seterusnya. Batas untuk suatu periode = baris dengan effectiveFrom
+/// terbesar yang <= tanggal awal periode. limitAmount 0 = tanpa batas.
+/// Dengan begini tidak perlu menyalin baris anggaran setiap periode.
+model Budget {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId   String   @map("household_id") @db.Uuid
+  categoryId    String   @map("category_id") @db.Uuid
+  limitAmount   BigInt   @map("limit_amount")
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, effectiveFrom])
+  @@index([householdId])
+  @@map("budgets")
+}
+
+/// dueDay 1-31: untuk bulan yang lebih pendek, aplikasi memakai hari terakhir
+/// bulan itu. dueMonth wajib untuk YEARLY. lastPaidDueDate = tanggal jatuh
+/// tempo terakhir yang sudah dibayar. categoryId opsional, dipakai bila
+/// "tandai sudah bayar" otomatis membuat transaksi.
+model RecurringBill {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId      String     @map("household_id") @db.Uuid
+  name             String
+  amount           BigInt
+  period           BillPeriod @default(MONTHLY)
+  dueDay           Int        @map("due_day") @db.SmallInt
+  dueMonth         Int?       @map("due_month") @db.SmallInt
+  remindDaysBefore Int[]      @default([3, 0]) @map("remind_days_before")
+  lastPaidDueDate  DateTime?  @map("last_paid_due_date") @db.Date
+  categoryId       String?    @map("category_id") @db.Uuid
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt        DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([householdId])
+  @@map("recurring_bills")
+}
+
+/// savedAmount diisi manual (sesuai PRD). Belum ada riwayat setoran; jika
+/// nanti perlu, tambahkan tabel setoran alih-alih menimpa savedAmount.
+model SavingsGoal {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId  String    @map("household_id") @db.Uuid
+  name         String
+  targetAmount BigInt    @map("target_amount")
+  savedAmount  BigInt    @default(0) @map("saved_amount")
+  deadline     DateTime? @db.Date
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+  @@map("savings_goals")
+}
+
+// -----------------------------------------------------------------------------
+// Belanja dan tugas (disubscribe Realtime: householdId sengaja ada di item)
+// -----------------------------------------------------------------------------
+
+model ShoppingList {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String   @map("household_id") @db.Uuid
+  name        String
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household Household      @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  items     ShoppingItem[]
+
+  @@index([householdId])
+  @@map("shopping_lists")
+}
+
+/// householdId di sini denormalisasi (untuk filter Realtime dan RLS); nilainya
+/// harus sama dengan list.householdId, dijaga di aplikasi.
+model ShoppingItem {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String    @map("household_id") @db.Uuid
+  listId      String    @map("list_id") @db.Uuid
+  name        String
+  quantity    String?
+  checked     Boolean   @default(false)
+  checkedById String?   @map("checked_by_id") @db.Uuid
+  checkedAt   DateTime? @map("checked_at") @db.Timestamptz(3)
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household Household    @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  list      ShoppingList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  checkedBy Profile?     @relation("ItemCheckedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+
+  @@index([householdId])
+  @@index([listId, sortOrder])
+  @@map("shopping_items")
+}
+
+model Task {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String     @map("household_id") @db.Uuid
+  title       String
+  assigneeId  String?    @map("assignee_id") @db.Uuid
+  dueDate     DateTime?  @map("due_date") @db.Date
+  recurrence  Recurrence @default(NONE)
+  doneAt      DateTime?  @map("done_at") @db.Timestamptz(3)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  assignee  Profile?  @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, doneAt])
+  @@index([assigneeId])
+  @@map("tasks")
+}
+
+// -----------------------------------------------------------------------------
+// Pengingat dokumen/tanggal (STNK, pajak, asuransi, paspor, garansi)
+// -----------------------------------------------------------------------------
+
+/// Untuk recurrence != NONE, saat ditandai selesai aplikasi memajukan dueDate
+/// ke kejadian berikutnya. Untuk NONE, isi doneAt.
+model Reminder {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId      String     @map("household_id") @db.Uuid
+  title            String
+  dueDate          DateTime   @map("due_date") @db.Date
+  recurrence       Recurrence @default(NONE)
+  remindDaysBefore Int[]      @default([30, 7, 0]) @map("remind_days_before")
+  note             String?
+  doneAt           DateTime?  @map("done_at") @db.Timestamptz(3)
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt        DateTime?  @map("deleted_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId, dueDate])
+  @@map("reminders")
+}
+
+// -----------------------------------------------------------------------------
+// Notifikasi (Telegram sekarang, WhatsApp/WAHA di Fase 2)
+// -----------------------------------------------------------------------------
+
+/// Satu baris per pengguna per kanal. address = chat_id Telegram (atau nomor
+/// WhatsApp) dan kosong sampai penautan selesai. linkCodeHash + linkCodeExpiresAt
+/// dipakai sementara selama proses penautan, lalu dikosongkan.
+model NotificationChannel {
+  id                String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId         String                  @map("profile_id") @db.Uuid
+  channel           NotificationChannelType
+  address           String?
+  linkCodeHash      String?                 @unique @map("link_code_hash")
+  linkCodeExpiresAt DateTime?               @map("link_code_expires_at") @db.Timestamptz(3)
+  linkedAt          DateTime?               @map("linked_at") @db.Timestamptz(3)
+  isActive          Boolean                 @default(true) @map("is_active")
+  createdAt         DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, channel])
+  @@map("notification_channels")
+}
+
+/// Kunci idempotensi pengiriman. Satu baris per (penerima, kanal, entitas,
+/// tanggal jatuh tempo, slot). slot = selisih hari sebelum jatuh tempo (H-3
+/// -> 3, H-0 -> 0) untuk BILL/REMINDER, atau ambang persen (80/100) untuk
+/// BUDGET dengan dueDate = awal periode. entityId polimorfik, tanpa FK.
+/// Pengiriman gagal: upsert baris FAILED, naikkan attempts, coba lagi di
+/// run cron berikutnya.
+model NotificationLog {
+  id          String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String                  @map("household_id") @db.Uuid
+  profileId   String                  @map("profile_id") @db.Uuid
+  channel     NotificationChannelType
+  entityType  NotificationEntity      @map("entity_type")
+  entityId    String                  @map("entity_id") @db.Uuid
+  dueDate     DateTime                @map("due_date") @db.Date
+  slot        Int                     @db.SmallInt
+  status      NotificationStatus
+  attempts    Int                     @default(1)
+  lastError   String?                 @map("last_error")
+  sentAt      DateTime?               @map("sent_at") @db.Timestamptz(3)
+  createdAt   DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, channel, entityType, entityId, dueDate, slot])
+  @@index([householdId, createdAt])
+  @@map("notification_logs")
+}
+
+// -----------------------------------------------------------------------------
+// Audit log (append-only; ditegakkan trigger di constraints.sql)
+// -----------------------------------------------------------------------------
+
+/// actorId kosong untuk aksi sistem (cron). entityId polimorfik, tanpa FK.
+/// Jangan simpan data sensitif di diff.
+model AuditLog {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  householdId String      @map("household_id") @db.Uuid
+  actorId     String?     @map("actor_id") @db.Uuid
+  entity      String
+  entityId    String      @map("entity_id") @db.Uuid
+  action      AuditAction
+  diff        Json?
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  actor     Profile?  @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, createdAt(sort: Desc)])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}

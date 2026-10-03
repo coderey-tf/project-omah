@@ -1,0 +1,29 @@
+# ==============================================================================
+# WAHA (WhatsApp HTTP API) Docker Compose untuk Sistem Omah
+# Referensi PRD: §8.3 (Fase 2)
+# Jalankan dengan: docker compose -f docker-compose.waha.yml up -d
+# Dashboard QR Scan: http://localhost:3008/dashboard
+# ==============================================================================
+
+version: "3.8"
+
+services:
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: omah-waha
+    restart: unless-stopped
+    ports:
+      - "3008:3000"
+    environment:
+      - WAHA_API_KEY=omah-secret-api-key-change-me
+      - WAHA_DASHBOARD_ENABLED=true
+      - WAHA_DASHBOARD_USERNAME=admin
+      - WAHA_DASHBOARD_PASSWORD=admin-password-change-me
+      - WHATSAPP_DEFAULT_ENGINE=NOWEB
+      - WAHA_PRINT_QR=true
+    volumes:
+      - waha_sessions:/app/.sessions
+
+volumes:
+  waha_sessions:
+    driver: local

@@ -1,26 +1,139 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #f2f0eb;
+  --color-canvas-card: #ffffff;
+  --color-canvas-soft: #edebe9;
+  --color-canvas-cool: #f9f9f9;
+
+  --color-house-green: #1E3932;
+  --color-starbucks-green: #006241;
+  --color-green-accent: #00754A;
+  --color-green-uplift: #2b5148;
+  --color-green-light: #d4e9e2;
+
+  --color-gold: #cba258;
+  --color-gold-light: #dfc49d;
+  --color-gold-lightest: #faf6ee;
+
+  --color-text-black: rgba(0, 0, 0, 0.87);
+  --color-text-black-soft: rgba(0, 0, 0, 0.58);
+  --color-text-white: #ffffff;
+  --color-text-white-soft: rgba(255, 255, 255, 0.70);
+
+  --color-border-card: #e5e3dd;
+  --color-border-input: #d6dbde;
+
+  --color-danger: #c82014;
+  --color-warning: #fbbc05;
+  --color-success: #00754A;
+
+  --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-lora), "Iowan Old Style", Georgia, serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2f0eb;
+  --foreground: rgba(0, 0, 0, 0.87);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-text-black);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Starbucks Typography Tokens */
+.font-display-lg {
+  font-size: 40px;
+  line-height: 1.2;
+  letter-spacing: -0.16px;
+  font-weight: 600;
+}
+
+.font-display-md {
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.16px;
+  font-weight: 600;
+}
+
+.font-h1 {
+  font-size: 24px;
+  line-height: 36px;
+  letter-spacing: -0.16px;
+  font-weight: 600;
+  color: var(--color-starbucks-green);
+}
+
+.font-h2 {
+  font-size: 24px;
+  line-height: 36px;
+  letter-spacing: -0.16px;
+  font-weight: 400;
+  color: var(--color-text-black);
+}
+
+.font-caption-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Starbucks Shadow Specifications */
+.shadow-starbucks-card {
+  box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+}
+
+.shadow-starbucks-nav {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.07);
+}
+
+.shadow-starbucks-frap {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
+}
+
+.shadow-starbucks-frap:active {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0);
+  transform: scale(0.95);
+}
+
+/* Starbucks 50px pill button interactive micro-interaction */
+.btn-pill {
+  border-radius: 50px;
+  transition: all 0.2s ease;
+}
+
+.btn-pill:active {
+  transform: scale(0.95);
+}
+
+/* Custom scrollbar matching warm cream */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6dbde;
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b0b7bb;
 }
