@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MealSlot } from "@prisma/client";
-import { MealPlanItem } from "@/lib/data/meal-plan";
+import { MealSlot } from "@/types/enums";
+import type { MealPlanItem } from "@/lib/data/meal-plan";
 import { AddMealModal } from "./add-meal-modal";
 import { PushToShoppingModal } from "./push-to-shopping-modal";
 import { toggleMealCookedAction, deleteMealPlanAction } from "@/actions/meal-plan-actions";

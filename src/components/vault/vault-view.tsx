@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DocumentCategory } from "@prisma/client";
-import { VaultDocumentItem } from "@/lib/data/vault";
+import { DocumentCategory } from "@/types/enums";
+import type { VaultDocumentItem } from "@/lib/data/vault";
 import { UploadDocumentModal } from "./upload-document-modal";
 import { deleteDocumentAction } from "@/actions/vault-actions";
 import {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DocumentCategory } from "@prisma/client";
+import { DocumentCategory } from "@/types/enums";
 import { uploadDocumentAction } from "@/actions/vault-actions";
 import {
   X,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { KondanganType } from "@prisma/client";
-import { KondanganItem } from "@/lib/data/kondangan";
+import { KondanganType } from "@/types/enums";
+import type { KondanganItem } from "@/lib/data/kondangan";
 import { formatRupiah } from "@/lib/utils";
 import { AddKondanganModal } from "./add-kondangan-modal";
 import { deleteKondanganAction } from "@/actions/kondangan-actions";

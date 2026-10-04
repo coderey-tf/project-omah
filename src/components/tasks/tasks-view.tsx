@@ -18,7 +18,7 @@ import {
   addTaskAction,
   deleteTaskAction,
 } from "@/actions/task-actions";
-import { Recurrence } from "@prisma/client";
+import { Recurrence } from "@/types/enums";
 import { useRealtime } from "@/hooks/use-realtime";
 
 interface TaskItem {

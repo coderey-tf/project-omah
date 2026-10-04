@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MealSlot } from "@prisma/client";
+import { MealSlot } from "@/types/enums";
 import { upsertMealPlanAction } from "@/actions/meal-plan-actions";
 import {
   X,

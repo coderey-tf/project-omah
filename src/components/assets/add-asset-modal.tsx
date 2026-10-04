@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AssetType } from "@prisma/client";
+import { AssetType } from "@/types/enums";
 import { createAssetAction } from "@/actions/asset-actions";
 import {
   X,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AssetType } from "@prisma/client";
-import { AssetItem } from "@/lib/data/assets";
+import { AssetType } from "@/types/enums";
+import type { AssetItem } from "@/lib/data/assets";
 import { formatRupiah } from "@/lib/utils";
 import { AddAssetModal } from "./add-asset-modal";
 import { AddServiceModal } from "./add-service-modal";

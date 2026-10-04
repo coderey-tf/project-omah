@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KondanganType } from "@prisma/client";
+import { KondanganType } from "@/types/enums";
 import { createKondanganAction } from "@/actions/kondangan-actions";
 import {
   X,
