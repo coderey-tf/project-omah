@@ -110,7 +110,7 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
             </span>
           </div>
           <p className="text-[11px] text-text-black-soft">
-            Masuk langsung sebagai <b>Admin (Kepala Keluarga)</b> tanpa perlu konfigurasi email/password.
+            Masuk langsung ke akun demo khusus uji coba (<b>Keluarga Uji Coba</b>) tanpa perlu konfigurasi email/kata sandi.
           </p>
           <button
             type="button"
@@ -121,6 +121,9 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
             <Zap className="h-3.5 w-3.5" />
             <span>Masuk Cepat Akun Testing</span>
           </button>
+          <div className="text-[10px] text-text-black-soft text-center font-mono pt-0.5">
+            Akun uji coba: <span className="text-house-green font-semibold">testing@omah.local</span> (Kata sandi bebas)
+          </div>
         </div>
 
         <div className="relative flex py-1 items-center mb-4">

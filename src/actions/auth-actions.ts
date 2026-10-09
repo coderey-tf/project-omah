@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { MemberRole } from "@prisma/client";
 import { createClient } from "@/lib/supabase/server";
+import { TEST_HOUSEHOLD_ID, TEST_ADMIN_ID } from "@/lib/data/households";
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -271,10 +272,12 @@ export async function loginWithTestingAccountAction() {
     cookieStore.set(
       "omah_session",
       JSON.stringify({
-        id: "admin-test-id",
-        displayName: "Admin",
+        id: TEST_ADMIN_ID,
+        displayName: "Admin Testing",
         role: "ADMIN",
-        email: "admin@omah.local",
+        email: "testing@omah.local",
+        householdId: TEST_HOUSEHOLD_ID,
+        isTesting: true,
       }),
       {
         httpOnly: true,
@@ -299,8 +302,10 @@ export async function signInAction(email: string, password: string) {
     }
 
     const isTestAccount =
-      email.includes("omah") ||
-      email.includes("test") ||
+      email === "testing@omah.local" ||
+      email === "admin@omah.local" ||
+      email.toLowerCase().includes("test") ||
+      email.toLowerCase().includes("demo") ||
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "placeholder-anon-key";
 
     if (isTestAccount) {
@@ -308,10 +313,12 @@ export async function signInAction(email: string, password: string) {
       cookieStore.set(
         "omah_session",
         JSON.stringify({
-          id: "admin-test-id",
-          displayName: email.split("@")[0] || "Admin",
+          id: TEST_ADMIN_ID,
+          displayName: "Admin Testing",
           role: "ADMIN",
-          email,
+          email: "testing@omah.local",
+          householdId: TEST_HOUSEHOLD_ID,
+          isTesting: true,
         }),
         {
           httpOnly: true,
@@ -357,8 +364,8 @@ export async function signUpAction(email: string, password: string, displayName:
     }
 
     const isTestAccount =
-      email.includes("omah") ||
-      email.includes("test") ||
+      email.toLowerCase().includes("test") ||
+      email.toLowerCase().includes("demo") ||
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "placeholder-anon-key";
 
     if (isTestAccount) {
@@ -366,10 +373,12 @@ export async function signUpAction(email: string, password: string, displayName:
       cookieStore.set(
         "omah_session",
         JSON.stringify({
-          id: "admin-test-id",
-          displayName: displayName.trim() || "Admin",
+          id: TEST_ADMIN_ID,
+          displayName: displayName.trim() || "Admin Testing",
           role: "ADMIN",
           email,
+          householdId: TEST_HOUSEHOLD_ID,
+          isTesting: true,
         }),
         {
           httpOnly: true,
