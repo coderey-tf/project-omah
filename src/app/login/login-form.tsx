@@ -86,7 +86,7 @@ export function LoginForm({ isConfigured }: LoginFormProps) {
           <Coffee className="h-7 w-7" />
         </div>
         <span className="block font-caption-mono text-xs text-starbucks-green font-bold tracking-widest uppercase">
-          OMAH · RUMAH TANGGA PRIVAT
+          OMAHKU · RUMAH TANGGA PRIVAT
         </span>
         <h1 className="font-serif text-2xl sm:text-3xl text-house-green font-bold mt-1">
           {mode === "login" ? "Masuk ke Sistem" : "Buat Akun Keluarga"}

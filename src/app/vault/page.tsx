@@ -8,7 +8,7 @@ import { getOrCreateDefaultHousehold } from "@/lib/data/households";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Brankas Dokumen — Omah",
+  title: "Brankas Dokumen — Omahku",
   description: "Penyimpanan salinan digital privat dan aman untuk dokumen penting keluarga.",
 };
 

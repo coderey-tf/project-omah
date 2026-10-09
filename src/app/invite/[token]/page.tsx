@@ -52,7 +52,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             <Coffee className="h-6 w-6" />
           </div>
           <span className="block font-caption-mono text-xs text-starbucks-green font-bold tracking-widest uppercase">
-            OMAH SYSTEM
+            OMAHKU SYSTEM
           </span>
           <h1 className="font-serif text-2xl text-house-green font-bold">
             Undangan Rumah Tangga

@@ -44,7 +44,7 @@ export function Header({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-caption-mono text-[11px] text-starbucks-green tracking-wider font-semibold">
-                OMAH · RUMAH TANGGA
+                OMAHKU · RUMAH TANGGA
               </span>
               <span className="inline-block h-2 w-2 rounded-full bg-green-accent animate-pulse" />
             </div>

@@ -704,7 +704,7 @@ export function SettingsView({ initialData }: SettingsViewProps) {
                 Sesi Akun & Keamanan
               </h3>
               <p className="text-xs text-text-black-soft">
-                Kelola status sesi login dan akses perangkat ke Omah
+                Kelola status sesi login dan akses perangkat ke Omahku
               </p>
             </div>
           </div>
@@ -737,7 +737,7 @@ export function SettingsView({ initialData }: SettingsViewProps) {
           </div>
           <div>
             <h4 className="font-serif text-sm font-bold text-house-green">
-              Project Omah — Starbucks Heritage Edition
+              Project Omahku — Starbucks Heritage Edition
             </h4>
             <p className="text-xs text-text-black-soft">
               House Green #1E3932 • Starbucks Green #006241 • Warm Cream #f2f0eb • Dual Shadow Cards

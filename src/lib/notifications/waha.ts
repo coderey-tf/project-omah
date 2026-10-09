@@ -75,7 +75,7 @@ export function formatBillWhatsAppMessage({
 }): string {
   const urgency = daysRemaining === 0 ? "🚨 *HARI INI JATUH TEMPO!*" : `⏳ *Jatuh tempo dalam ${daysRemaining} hari*`;
   return [
-    `☕ *Omah — Pengingat Tagihan Rumah*`,
+    `☕ *Omahku — Pengingat Tagihan Rumah*`,
     `_Keluarga: ${householdName}_`,
     ``,
     urgency,
@@ -83,7 +83,7 @@ export function formatBillWhatsAppMessage({
     `💰 *Nominal:* ${amountFormatted}`,
     `📅 *Jatuh Tempo:* ${dueDateFormatted}`,
     ``,
-    `Buka Omah untuk konfirmasi pembayaran:`,
+    `Buka Omahku untuk konfirmasi pembayaran:`,
     `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}`,
   ].join("\n");
 }
@@ -103,7 +103,7 @@ export function formatReminderWhatsAppMessage({
 }): string {
   const urgency = daysRemaining === 0 ? "🚨 *HARI INI JATUH TEMPO!*" : `⏳ *Jatuh tempo dalam ${daysRemaining} hari*`;
   return [
-    `☕ *Omah — Pengingat Berkas & Jatuh Tempo*`,
+    `☕ *Omahku — Pengingat Berkas & Jatuh Tempo*`,
     `_Keluarga: ${householdName}_`,
     ``,
     urgency,
@@ -111,6 +111,6 @@ export function formatReminderWhatsAppMessage({
     `📅 *Batas Waktu:* ${dueDateFormatted}`,
     note ? `📝 *Catatan:* ${note}` : "",
     ``,
-    `Buka Omah: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}`,
+    `Buka Omahku: ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}`,
   ].filter(Boolean).join("\n");
 }

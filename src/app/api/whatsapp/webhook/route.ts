@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Default / Help
     const helpReply = [
-      `☕ *Omah System — Asisten WhatsApp Keluarga*`,
+      `☕ *Omahku System — Asisten WhatsApp Keluarga*`,
       `Halo *${memberName}*, berikut perintah cepat yang dapat Anda gunakan:`,
       ``,
       `• */saldo* — Cek saldo kas & rekening aktif`,

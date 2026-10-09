@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
           await sendTelegramMessage({
             chatId,
             text: [
-              `☕ <b>Selamat Datang di Bot Omah System!</b>`,
+              `☕ <b>Selamat Datang di Bot Omahku System!</b>`,
               `Halo <b>${profile.displayName}</b>, bot telah terhubung dengan <b>${defaultHousehold.name}</b>.`,
               ``,
               `<b>Perintah yang tersedia:</b>`,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
 
       await sendTelegramMessage({
         chatId,
-        text: `☕ <b>Omah System</b>\n\nKetik /saldo, /tagihan, atau /tugas untuk melihat data rumah tangga Anda.`,
+        text: `☕ <b>Omahku System</b>\n\nKetik /saldo, /tagihan, atau /tugas untuk melihat data rumah tangga Anda.`,
       });
       return NextResponse.json({ ok: true });
     }
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
     await sendTelegramMessage({
       chatId,
       text: [
-        `☕ <b>Omah System Bot</b>`,
+        `☕ <b>Omahku System Bot</b>`,
         `Perintah:`,
         `/saldo — Cek saldo seluruh dompet & rekening`,
         `/tagihan — Cek tagihan jatuh tempo bulan ini`,

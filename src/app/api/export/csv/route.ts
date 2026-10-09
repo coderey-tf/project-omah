@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const today = new Date().toISOString().slice(0, 10);
 
     let csvContent = "";
-    let filename = `omah-${type}-${today}.csv`;
+    let filename = `omahku-${type}-${today}.csv`;
 
     if (type === "budgets") {
       const budgetSummary = await getBudgetsWithSpent(household.id);
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       csvContent = generateCsv(headers, rows);
     } else {
       // Default: transactions
-      filename = `omah-transaksi-${today}.csv`;
+      filename = `omahku-transaksi-${today}.csv`;
       const transactions = await prisma.transaction.findMany({
         where: { householdId: household.id, deletedAt: null },
         orderBy: { occurredOn: "desc" },

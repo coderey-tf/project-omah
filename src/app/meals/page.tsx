@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Meal Planner Mingguan — Omah",
+  title: "Meal Planner Mingguan — Omahku",
   description: "Perencanaan menu harian keluarga dan ekspor bahan masakan ke daftar belanja.",
 };
 

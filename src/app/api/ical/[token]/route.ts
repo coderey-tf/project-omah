@@ -149,10 +149,10 @@ export async function GET(
   const calendarContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Omah System//Household Management//ID",
+    "PRODID:-//Omahku System//Household Management//ID",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeIcalText(`Omah — ${household.name}`)}`,
+    `X-WR-CALNAME:${escapeIcalText(`Omahku — ${household.name}`)}`,
     "X-WR-TIMEZONE:Asia/Jakarta",
     ...events,
     "END:VCALENDAR",
@@ -162,7 +162,7 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `inline; filename="omah-${household.id}.ics"`,
+      "Content-Disposition": `inline; filename="omahku-${household.id}.ics"`,
       "Cache-Control": "public, max-age=3600, s-maxage=3600",
     },
   });

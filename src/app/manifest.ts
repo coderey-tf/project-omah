@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Omah — Kelola Rumah Tangga",
-    short_name: "Omah",
+    name: "Omahku — Kelola Rumah Tangga",
+    short_name: "Omahku",
     description: "Sistem Manajemen Keuangan & Rumah Tangga Privat",
     start_url: "/",
     display: "standalone",

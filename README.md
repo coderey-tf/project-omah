@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="public/icons/icon.svg" alt="Omah Logo" width="80" height="80" />
-  <h1>Omah — Open-Source Private Family Management System</h1>
+  <img src="public/icons/icon.svg" alt="Omahku Logo" width="80" height="80" />
+  <h1>Omahku — Open-Source Private Family Management System</h1>
   <p><strong>A self-hosted, mobile-first household operating system for couples. Seamlessly manage joint finances, shopping checklists, daily chores, document vaults, and automated renewal reminders.</strong></p>
 
   <p>
@@ -24,14 +24,14 @@
 
 ---
 
-## 💡 Why Omah?
+## 💡 Why Omahku?
 
 Managing household finances and domestic responsibilities with spreadsheets, disjointed chat threads, or complicated enterprise expense trackers often leads to friction:
 - **Commercial apps** are bloated with ads, require paid multi-user subscriptions, or demand invasive bank-linking permissions.
 - **Generic to-do apps** lack household financial context (budgeting periods, bill confirmation, asset service tracking).
 - **Manual spreadsheets** are slow on mobile devices, making daily expense tracking inconsistent.
 
-**Omah** (Javanese for *"Home"*) is purposefully designed as a lightweight, private, self-hosted web app built exclusively for **two partners (Husband & Wife / Couples)**. It focuses on speed (<10 seconds to log an expense), shared transparency, and elegant daily habits.
+**Omahku** (Javanese for *"My Home"*) is purposefully designed as a lightweight, private, self-hosted web app built exclusively for **two partners (Husband & Wife / Couples)**. It focuses on speed (<10 seconds to log an expense), shared transparency, and elegant daily habits.
 
 ---
 

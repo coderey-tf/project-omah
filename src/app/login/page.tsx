@@ -1,8 +1,8 @@
 import { LoginForm } from "./login-form";
 
 export const metadata = {
-  title: "Masuk — Omah Sistem Rumah Tangga",
-  description: "Masuk ke sistem manajemen rumah tangga privat Omah",
+  title: "Masuk — Omahku Sistem Rumah Tangga",
+  description: "Masuk ke sistem manajemen rumah tangga privat Omahku",
 };
 
 export default function LoginPage() {

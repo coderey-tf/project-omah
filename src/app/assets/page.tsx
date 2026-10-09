@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Aset & Servis — Omah",
+  title: "Aset & Servis — Omahku",
   description: "Manajemen aset rumah tangga, masa berlaku garansi, dan riwayat servis kendaraan.",
 };
 

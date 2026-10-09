@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Buku Kondangan & Angpao — Omah",
+  title: "Buku Kondangan & Angpao — Omahku",
   description: "Catatan timbal-balik amplop dan kado hajatan kerabat dan keluarga.",
 };
 

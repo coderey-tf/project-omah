@@ -56,7 +56,7 @@ export function formatBillTelegramMessage({
 }): string {
   const urgencyIcon = daysRemaining === 0 ? "🚨 <b>HARI INI JATUH TEMPO!</b>" : `⏳ <b>Jatuh tempo dalam ${daysRemaining} hari</b>`;
   return [
-    `☕ <b>Omah — Pengingat Tagihan Rumah</b>`,
+    `☕ <b>Omahku — Pengingat Tagihan Rumah</b>`,
     `<i>Rumah Tangga: ${householdName}</i>`,
     ``,
     urgencyIcon,
@@ -64,7 +64,7 @@ export function formatBillTelegramMessage({
     `💰 Nominal: <b>${amountFormatted}</b>`,
     `📅 Tanggal: ${dueDateFormatted}`,
     ``,
-    `<i>Buka aplikasi Omah untuk mencatat pembayaran dan memperbarui saldo kas.</i>`,
+    `<i>Buka aplikasi Omahku untuk mencatat pembayaran dan memperbarui saldo kas.</i>`,
   ].join("\n");
 }
 
@@ -83,7 +83,7 @@ export function formatBudgetTelegramMessage({
 }): string {
   const icon = percentage >= 100 ? "🛑 <b>ANGGARAN TERLEWATI!</b>" : "⚠️ <b>PERINGATAN ANGGARAN (80%)</b>";
   return [
-    `☕ <b>Omah — Peringatan Anggaran</b>`,
+    `☕ <b>Omahku — Peringatan Anggaran</b>`,
     `<i>Rumah Tangga: ${householdName}</i>`,
     ``,
     icon,
@@ -112,7 +112,7 @@ export function formatReminderTelegramMessage({
       ? "🚨 <b>HARI INI JATUH TEMPO DOKUMEN!</b>"
       : `⏳ <b>Jatuh tempo dalam ${daysRemaining} hari</b>`;
   return [
-    `☕ <b>Omah — Pengingat Dokumen & Tenggat</b>`,
+    `☕ <b>Omahku — Pengingat Dokumen & Tenggat</b>`,
     `<i>Rumah Tangga: ${householdName}</i>`,
     ``,
     urgencyIcon,
@@ -120,7 +120,7 @@ export function formatReminderTelegramMessage({
     `📅 Batas Tenggat: ${dueDateFormatted}`,
     note ? `📝 Catatan: <i>${note}</i>` : ``,
     ``,
-    `<i>Buka aplikasi Omah untuk memperbarui atau menandai dokumen ini telah diurus.</i>`,
+    `<i>Buka aplikasi Omahku untuk memperbarui atau menandai dokumen ini telah diurus.</i>`,
   ]
     .filter(Boolean)
     .join("\n");

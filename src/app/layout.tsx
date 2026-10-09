@@ -28,13 +28,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Omah — Rumah Tangga Privat",
+  title: "Omahku — Rumah Tangga Privat",
   description: "Sistem Manajemen Keuangan & Rumah Tangga Privat",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Omah",
+    title: "Omahku",
   },
   icons: {
     icon: "/icons/icon-192.png",

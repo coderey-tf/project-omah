@@ -58,7 +58,7 @@ export function DesktopSidebar() {
         </div>
         <div>
           <span className="font-caption-mono text-[10px] text-starbucks-green font-bold tracking-wider">
-            OMAH SYSTEM
+            OMAHKU SYSTEM
           </span>
           <h2 className="text-lg text-text-black tracking-tight font-semibold">
             Rumah Tangga

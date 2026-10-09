@@ -8,7 +8,7 @@ import { getOrCreateDefaultHousehold } from "@/lib/data/households";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Laporan & Tren Tahunan — Omah",
+  title: "Laporan & Tren Tahunan — Omahku",
   description: "Analisis arus kas 12 bulan, rasio tabungan, dan tren pengeluaran rumah tangga.",
 };
 
