@@ -6,7 +6,13 @@ import { getTransactionsPageData } from "@/lib/data/transactions";
 
 export const dynamic = "force-dynamic";
 
-export default async function TransactionsPage() {
+export default async function TransactionsPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const initialSharedReceipt = typeof searchParams.sharedReceipt === "string" ? searchParams.sharedReceipt : undefined;
+  const initialShareError = typeof searchParams.shareError === "string" ? searchParams.shareError : undefined;
+
   const data = await getTransactionsPageData();
 
   return (
@@ -19,7 +25,11 @@ export default async function TransactionsPage() {
 
       {/* 3. Main Content Area */}
       <div className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 pb-28 md:pb-12">
-        <TransactionsView initialData={data} />
+        <TransactionsView
+          initialData={data}
+          initialSharedReceipt={initialSharedReceipt}
+          initialShareError={initialShareError}
+        />
       </div>
 
       {/* 4. Mobile Bottom Navigation */}

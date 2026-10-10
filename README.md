@@ -39,6 +39,7 @@ Managing household finances and domestic responsibilities with spreadsheets, dis
 
 ### 💰 Household Finance & Custom Budgets
 - **Sub-10s Expense Logging:** Fast, mobile-optimized quick-add modal with smart defaults (current date, last-used wallet).
+- **PWA Web Share Target & AI Receipt Scanner:** Share payment proofs directly from **myBCA**, QRIS, or mobile banking apps into Omahku; automatically parsed using free Google Gemini Flash Vision AI (amounts, merchants, wallets, categories pre-filled in seconds).
 - **Dynamic Wallet Balances:** Math-driven balance calculation (`opening_balance + sum(active_tx)`) ensuring zero database drift.
 - **Payday-Aligned Budget Periods:** Set your household budget cycle starting from your actual payday (e.g. 25th of each month) instead of rigid calendar months.
 - **Recurring Bills & 1-Click Settlement:** Track monthly/yearly utilities (WiFi, electricity, maintenance) with cycle payment status and automatic expense creation.

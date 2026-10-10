@@ -33,6 +33,8 @@ dist/
 .claude/
 .gemini/
 .impeccable/
+.windsurf/
+skills-lock.json
 scratch/
 
 # IDE & Editor Files

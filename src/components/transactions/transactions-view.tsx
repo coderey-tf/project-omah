@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -14,9 +14,16 @@ import {
   Tag,
   User,
   Download,
+  Sparkles,
+  AlertCircle,
+  X,
+  Loader2,
 } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
-import { QuickTransactionModal } from "@/components/dashboard/quick-transaction-modal";
+import {
+  QuickTransactionModal,
+  InitialReceiptData,
+} from "@/components/dashboard/quick-transaction-modal";
 import { useRouter } from "next/navigation";
 
 interface TransactionItem {
@@ -43,14 +50,33 @@ interface TransactionsViewProps {
     netFlow: number;
     count: number;
   };
+  initialSharedReceipt?: string;
+  initialShareError?: string;
 }
 
-export function TransactionsView({ initialData }: TransactionsViewProps) {
+export function TransactionsView({
+  initialData,
+  initialSharedReceipt,
+  initialShareError,
+}: TransactionsViewProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [selectedType, setSelectedType] = useState<"ALL" | "EXPENSE" | "INCOME" | "TRANSFER">("ALL");
   const [selectedWalletId, setSelectedWalletId] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [sharedReceiptData, setSharedReceiptData] = useState<InitialReceiptData | null>(() => {
+    if (initialSharedReceipt) {
+      try {
+        return JSON.parse(initialSharedReceipt);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+  const [shareError, setShareError] = useState<string | null>(initialShareError || null);
+  const [isModalOpen, setIsModalOpen] = useState(Boolean(initialSharedReceipt));
 
   // Client-side filtering
   const filteredTransactions = useMemo(() => {
@@ -95,6 +121,13 @@ export function TransactionsView({ initialData }: TransactionsViewProps) {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          {isPending && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-starbucks-green text-xs font-semibold animate-pulse">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600" />
+              <span>Memperbarui...</span>
+            </div>
+          )}
+
           <a
             href="/api/export/csv?type=transactions"
             download
@@ -114,6 +147,24 @@ export function TransactionsView({ initialData }: TransactionsViewProps) {
           </button>
         </div>
       </div>
+
+      {/* Share Target Error Alert */}
+      {shareError && (
+        <div className="flex items-start gap-2.5 p-3 rounded-[10px] bg-red-50 border border-red-200 text-red-800 text-xs">
+          <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-semibold">Bukti Pembayaran Gagal Diproses</p>
+            <p className="text-[11px] text-red-700 leading-relaxed">{decodeURIComponent(shareError)}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShareError(null)}
+            className="text-red-500 hover:text-red-700 p-0.5 cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* 2. Summary Mini-Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -323,10 +374,19 @@ export function TransactionsView({ initialData }: TransactionsViewProps) {
       {/* Modal */}
       <QuickTransactionModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={() => router.refresh()}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSharedReceiptData(null);
+        }}
+        onSuccess={() => {
+          setSharedReceiptData(null);
+          startTransition(() => {
+            router.refresh();
+          });
+        }}
         wallets={initialData.wallets}
         categories={initialData.categories}
+        initialReceiptData={sharedReceiptData}
       />
     </div>
   );

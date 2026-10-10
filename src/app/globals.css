@@ -137,3 +137,35 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #b0b7bb;
 }
+
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+.animate-indeterminate {
+  animation: indeterminate 1.3s infinite ease-in-out;
+}
+
+@keyframes scanline {
+  0% {
+    top: 0%;
+    opacity: 0.7;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.7;
+  }
+}
+
+.animate-scanline {
+  animation: scanline 2s infinite ease-in-out;
+}
