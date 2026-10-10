@@ -141,8 +141,17 @@ PANDUAN TAMBAHAN:
 3. Jika ini adalah pembelian barang (misal baju, makanan, kopi), tentukan type "EXPENSE".
 4. Hanya kembalikan string JSON valid tanpa markdown backticks tambahan.`;
 
-    // Coba gemini-2.0-flash terlebih dahulu, jika gagal fallback ke gemini-1.5-flash
-    const models = ["gemini-2.0-flash", "gemini-1.5-flash"];
+    // Coba model Gemini Flash aktif dengan fallback berurutan
+    const preferredModel = process.env.GEMINI_MODEL;
+    const models = [
+      preferredModel,
+      "gemini-3-flash-preview",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash",
+      "gemini-3.7-flash",
+      "gemini-3.1-flash-lite",
+      "gemini-flash-latest",
+    ].filter(Boolean) as string[];
     let rawResponseText = "";
     let lastError = "";
 
