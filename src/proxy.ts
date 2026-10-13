@@ -10,6 +10,9 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/invite") ||
+    pathname.startsWith("/api/telegram") ||
+    pathname.startsWith("/api/whatsapp") ||
+    pathname.startsWith("/api/cron") ||
     pathname.startsWith("/api/ical") ||
     pathname.startsWith("/api/export") ||
     pathname.startsWith("/manifest") ||

@@ -31,47 +31,66 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 1. /start command
+    // 1. Check if input is a linking code (/start <CODE> or directly sending 6-char hex code like 879EEE)
+    let linkCode: string | null = null;
     if (text.startsWith("/start")) {
       const parts = text.split(" ");
-      const linkCode = parts[1]?.trim();
+      if (parts[1]?.trim()) {
+        linkCode = parts[1].trim().toUpperCase();
+      }
+    } else if (/^[A-Za-z0-9]{6}$/.test(text)) {
+      linkCode = text.trim().toUpperCase();
+    }
 
-      if (linkCode) {
-        // Link to profile with this code
-        const targetChannel = await prisma.notificationChannel.findFirst({
-          where: {
-            channel: NotificationChannelType.TELEGRAM,
-            linkCodeHash: linkCode,
+    if (linkCode) {
+      // Link to profile with this code
+      const targetChannel = await prisma.notificationChannel.findFirst({
+        where: {
+          channel: NotificationChannelType.TELEGRAM,
+          linkCodeHash: linkCode,
+          OR: [
+            { linkCodeExpiresAt: null },
+            { linkCodeExpiresAt: { gte: new Date() } },
+          ],
+        },
+        include: { profile: { include: { household: true } } },
+      });
+
+      if (targetChannel) {
+        await prisma.notificationChannel.update({
+          where: { id: targetChannel.id },
+          data: {
+            address: chatId,
+            linkedAt: new Date(),
+            linkCodeHash: null,
+            linkCodeExpiresAt: null,
+            isActive: true,
           },
-          include: { profile: { include: { household: true } } },
         });
 
-        if (targetChannel) {
-          await prisma.notificationChannel.update({
-            where: { id: targetChannel.id },
-            data: {
-              address: chatId,
-              linkedAt: new Date(),
-              linkCodeHash: null,
-              linkCodeExpiresAt: null,
-              isActive: true,
-            },
-          });
+        await sendTelegramMessage({
+          chatId,
+          text: [
+            `☕ <b>Akun Telegram Berhasil Ditautkan!</b>`,
+            `Halo <b>${targetChannel.profile.displayName}</b>, akun Anda kini terhubung ke rumah tangga <b>${targetChannel.profile.household.name}</b>.`,
+            ``,
+            `Anda akan menerima pengingat otomatis untuk tagihan, belanja, dan tugas rumah.`,
+            `Ketik /saldo, /tagihan, atau /tugas untuk cek status cepat kapan saja!`,
+          ].join("\n"),
+        });
 
-          await sendTelegramMessage({
-            chatId,
-            text: [
-              `☕ <b>Akun Telegram Berhasil Ditautkan!</b>`,
-              `Halo <b>${targetChannel.profile.displayName}</b>, akun Anda kini terhubung ke rumah tangga <b>${targetChannel.profile.household.name}</b>.`,
-              ``,
-              `Anda akan menerima pengingat otomatis untuk tagihan, belanja, dan tugas rumah.`,
-              `Ketik /saldo, /tagihan, atau /tugas untuk cek status cepat kapan saja!`,
-            ].join("\n"),
-          });
-
-          return NextResponse.json({ ok: true });
-        }
+        return NextResponse.json({ ok: true });
+      } else {
+        await sendTelegramMessage({
+          chatId,
+          text: `⚠️ Kode penautan <b>${linkCode}</b> tidak valid atau sudah kedaluwarsa. Silakan buat kode baru melalui menu Pengaturan di aplikasi Omahku.`,
+        });
+        return NextResponse.json({ ok: true });
       }
+    }
+
+    // 2. /start without code
+    if (text.startsWith("/start")) {
 
       // If no code or already linked or first time
       if (!channel) {
