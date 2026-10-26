@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -39,6 +39,13 @@ export function DesktopSidebar() {
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  // Clear pending state when path finishes transitioning
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
   const handleLogout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
@@ -69,15 +76,21 @@ export function DesktopSidebar() {
       {/* Nav Items */}
       <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          const isCurrent = pathname === item.href;
+          const isPending = pendingHref === item.href;
+          const isActive = isCurrent || isPending;
           const Icon = item.icon;
 
           return (
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
+              onClick={() => {
+                if (!isCurrent) setPendingHref(item.href);
+              }}
               className={cn(
-                "btn-pill flex items-center gap-3 px-4 py-2.5 text-sm transition-all relative group",
+                "btn-pill flex items-center gap-3 px-4 py-2.5 text-sm transition-all relative group cursor-pointer",
                 isActive
                   ? "bg-green-light/40 text-starbucks-green font-semibold"
                   : "text-text-black-soft hover:bg-canvas hover:text-text-black font-medium"
@@ -86,7 +99,8 @@ export function DesktopSidebar() {
               <Icon
                 className={cn(
                   "h-4 w-4 transition-colors",
-                  isActive ? "text-starbucks-green" : "text-text-black-soft group-hover:text-text-black"
+                  isActive ? "text-starbucks-green" : "text-text-black-soft group-hover:text-text-black",
+                  isPending && "animate-pulse"
                 )}
               />
               <span>{item.name}</span>

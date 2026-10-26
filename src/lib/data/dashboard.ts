@@ -79,10 +79,7 @@ export async function getDashboardData() {
 
   // 3. Budgets & Realization per Category
   const budgetSummary = await getBudgetsWithSpent(householdId);
-  const periodBudget =
-    budgetSummary.totalLimit > 0
-      ? budgetSummary.totalLimit
-      : 9000000; // default benchmark if not configured yet
+  const periodBudget = budgetSummary.totalLimit;
 
 
   // 4. 3 Latest Transactions

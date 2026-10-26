@@ -33,22 +33,8 @@ interface QuickTransactionModalProps {
   initialReceiptData?: InitialReceiptData | null;
 }
 
-const DEFAULT_CATEGORIES = [
-  { id: "c1", name: "Bahan Makanan" },
-  { id: "c2", name: "Makan Luar" },
-  { id: "c3", name: "Transportasi" },
-  { id: "c4", name: "Utilitas" },
-  { id: "c5", name: "Belanja Rumah" },
-  { id: "c6", name: "Kesehatan" },
-  { id: "c7", name: "Hiburan" },
-  { id: "c8", name: "Lainnya" },
-];
-
-const DEFAULT_WALLETS = [
-  { id: "w1", name: "Kas Tunai" },
-  { id: "w2", name: "BCA Bersama" },
-  { id: "w3", name: "GoPay / OVO" },
-];
+const DEFAULT_CATEGORIES: Array<{ id: string; name: string; kind?: string }> = [];
+const DEFAULT_WALLETS: Array<{ id: string; name: string }> = [];
 
 const SCAN_STEPS_MESSAGES = [
   "Mengompres & membaca bukti pembayaran...",
@@ -128,9 +114,9 @@ export function QuickTransactionModal({
 }: QuickTransactionModalProps) {
   const [type, setType] = useState<"EXPENSE" | "INCOME" | "TRANSFER">("EXPENSE");
   const [amountStr, setAmountStr] = useState<string>("");
-  const [category, setCategory] = useState<string>(categories[0]?.name || "Bahan Makanan");
+  const [category, setCategory] = useState<string>(categories[0]?.name || "");
   const [categoryId, setCategoryId] = useState<string>(categories[0]?.id || "");
-  const [wallet, setWallet] = useState<string>(wallets[0]?.id || "w1");
+  const [wallet, setWallet] = useState<string>(wallets[0]?.id || "");
   const [description, setDescription] = useState<string>("");
   const [occurredOnStr, setOccurredOnStr] = useState<string>(new Date().toISOString().split("T")[0]);
 
@@ -298,7 +284,12 @@ export function QuickTransactionModal({
 
     try {
       const activeWalletId = wallet || wallets[0]?.id;
-      const activeCategoryId = categoryId || categories[0]?.id;
+      if (!activeWalletId) {
+        setFormError("Belum ada dompet sumber. Silakan buat dompet di menu Pengaturan terlebih dahulu.");
+        setIsSubmitting(false);
+        return;
+      }
+      const activeCategoryId = categoryId || categories[0]?.id || null;
 
       const res = await createTransactionAction({
         type,
@@ -557,26 +548,32 @@ export function QuickTransactionModal({
             <label className="block text-xs font-semibold text-text-black-soft mb-1.5">
               KATEGORI
             </label>
-            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  disabled={isFormLocked}
-                  onClick={() => {
-                    setCategory(cat.name);
-                    setCategoryId(cat.id);
-                  }}
-                  className={`btn-pill px-3 py-1 text-xs border transition-colors cursor-pointer font-medium disabled:cursor-not-allowed ${
-                    categoryId === cat.id
-                      ? "border-green-accent bg-green-light text-starbucks-green font-semibold"
-                      : "border-border-card bg-canvas text-text-black-soft hover:border-text-black-soft"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
+            {categories.length === 0 ? (
+              <p className="text-xs text-text-black-soft italic">
+                Belum ada kategori. Tambahkan di menu Pengaturan.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    disabled={isFormLocked}
+                    onClick={() => {
+                      setCategory(cat.name);
+                      setCategoryId(cat.id);
+                    }}
+                    className={`btn-pill px-3 py-1 text-xs border transition-colors cursor-pointer font-medium disabled:cursor-not-allowed ${
+                      categoryId === cat.id
+                        ? "border-green-accent bg-green-light text-starbucks-green font-semibold"
+                        : "border-border-card bg-canvas text-text-black-soft hover:border-text-black-soft"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Wallet Choice */}
@@ -584,23 +581,29 @@ export function QuickTransactionModal({
             <label className="block text-xs font-semibold text-text-black-soft mb-1.5">
               SUMBER DOMPET
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {wallets.map((w) => (
-                <button
-                  key={w.id}
-                  type="button"
-                  disabled={isFormLocked}
-                  onClick={() => setWallet(w.id)}
-                  className={`py-2 px-2 text-xs rounded-[8px] border text-center transition-colors cursor-pointer truncate font-medium disabled:cursor-not-allowed ${
-                    wallet === w.id
-                      ? "border-green-accent bg-green-light/40 text-starbucks-green font-semibold"
-                      : "border-border-card bg-canvas text-text-black-soft hover:border-text-black-soft"
-                  }`}
-                >
-                  {w.name}
-                </button>
-              ))}
-            </div>
+            {wallets.length === 0 ? (
+              <div className="p-2.5 rounded-[8px] bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                Belum ada dompet terdaftar. Tambahkan rekening atau dompet di menu Pengaturan sebelum mencatat transaksi.
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {wallets.map((w) => (
+                  <button
+                    key={w.id}
+                    type="button"
+                    disabled={isFormLocked}
+                    onClick={() => setWallet(w.id)}
+                    className={`py-2 px-2 text-xs rounded-[8px] border text-center transition-colors cursor-pointer truncate font-medium disabled:cursor-not-allowed ${
+                      wallet === w.id
+                        ? "border-green-accent bg-green-light/40 text-starbucks-green font-semibold"
+                        : "border-border-card bg-canvas text-text-black-soft hover:border-text-black-soft"
+                    }`}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Action Buttons with High-Feedback Loading State */}
@@ -635,7 +638,7 @@ export function QuickTransactionModal({
             ) : (
               <button
                 type="submit"
-                disabled={isScanning || parsedAmount <= 0}
+                disabled={isScanning || parsedAmount <= 0 || wallets.length === 0}
                 className="btn-pill flex items-center gap-1.5 bg-green-accent hover:bg-starbucks-green text-white px-5 py-2 text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
                 <Check className="h-4 w-4 stroke-[2.5]" />

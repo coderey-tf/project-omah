@@ -9,7 +9,7 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toggleTaskAction } from "@/actions/task-actions";
 import { toggleShoppingItemAction } from "@/actions/shopping-actions";
 
@@ -40,53 +40,16 @@ export function TabAktivitas({
   initialTasks,
   initialShoppingItems,
 }: TabAktivitasProps) {
-  const [tasks, setTasks] = useState<TaskItem[]>(
-    initialTasks || [
-      {
-        id: "tk1",
-        title: "Buang sampah & bersihkan kotak filter AC",
-        assignee: "Suami",
-        dueDate: "Hari ini (Mendesak)",
-        isUrgent: true,
-        completed: false,
-        recurrence: "Mingguan",
-      },
-      {
-        id: "tk2",
-        title: "Ganti galon air minum & gas elpiji dapur",
-        assignee: "Bersama",
-        dueDate: "Besok pagi",
-        isUrgent: false,
-        completed: false,
-      },
-      {
-        id: "tk3",
-        title: "Jemur kasur & cuci sprei kamar utama",
-        assignee: "Istri",
-        dueDate: "Sabtu, 3 Okt",
-        isUrgent: false,
-        completed: false,
-        recurrence: "2 Mingguan",
-      },
-      {
-        id: "tk4",
-        title: "Service berkala motor Honda Vario",
-        assignee: "Suami",
-        dueDate: "5 Okt 2026",
-        isUrgent: false,
-        completed: false,
-      },
-    ]
-  );
+  const [tasks, setTasks] = useState<TaskItem[]>(initialTasks || []);
+  const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>(initialShoppingItems || []);
 
-  const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>(
-    initialShoppingItems || [
-      { id: "s1", name: "Beras Rojolele 5kg", quantity: "1 sak", category: "Dapur", checked: false },
-      { id: "s2", name: "Minyak Goreng 2 Liter", quantity: "1 pouch", category: "Dapur", checked: false },
-      { id: "s3", name: "Telur Ayam Negeri", quantity: "1 kg", category: "Dapur", checked: true },
-      { id: "s4", name: "Sabun Cuci Piring & Spon", quantity: "2 bungkus", category: "Kebersihan", checked: false },
-    ]
-  );
+  useEffect(() => {
+    if (initialTasks) setTasks(initialTasks);
+  }, [initialTasks]);
+
+  useEffect(() => {
+    if (initialShoppingItems) setShoppingItems(initialShoppingItems);
+  }, [initialShoppingItems]);
 
   const toggleTask = async (id: string) => {
     const target = tasks.find((t) => t.id === id);
@@ -139,66 +102,73 @@ export function TabAktivitas({
           </Link>
         </div>
 
-        <div className="space-y-3">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              onClick={() => toggleTask(task.id)}
-              className={`flex items-start sm:items-center justify-between gap-3 rounded-[12px] p-3.5 cursor-pointer transition-all border ${
-                task.completed
-                  ? "border-border-card bg-canvas/40 opacity-60"
-                  : task.isUrgent
-                  ? "border-warning/60 bg-amber-50/50"
-                  : "border-border-card bg-white hover:border-green-accent"
-              }`}
-            >
-              <div className="flex items-start sm:items-center gap-3.5">
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => {}}
-                  className="mt-0.5 sm:mt-0 h-4 w-4 rounded-[4px] border-border-input text-green-accent accent-green-accent cursor-pointer"
-                />
-                <div>
-                  <p
-                    className={`text-sm font-semibold ${
-                      task.completed ? "line-through text-text-black-soft" : "text-text-black"
-                    }`}
-                  >
-                    {task.title}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-text-black-soft">
-                    <span className="flex items-center gap-1 text-starbucks-green font-medium">
-                      <User className="h-3.5 w-3.5" />
-                      {task.assignee}
-                    </span>
-                    <span>·</span>
-                    <span
-                      className={`flex items-center gap-1 font-medium ${
-                        task.isUrgent ? "text-amber-800 font-semibold" : "text-text-black-soft"
+        {tasks.length > 0 ? (
+          <div className="space-y-3">
+            {tasks.map((task) => (
+              <div
+                key={task.id}
+                onClick={() => toggleTask(task.id)}
+                className={`flex items-start sm:items-center justify-between gap-3 rounded-[12px] p-3.5 cursor-pointer transition-all border ${
+                  task.completed
+                    ? "border-border-card bg-canvas/40 opacity-60"
+                    : task.isUrgent
+                    ? "border-warning/60 bg-amber-50/50"
+                    : "border-border-card bg-white hover:border-green-accent"
+                }`}
+              >
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => {}}
+                    className="mt-0.5 sm:mt-0 h-4 w-4 rounded-[4px] border-border-input text-green-accent accent-green-accent cursor-pointer"
+                  />
+                  <div>
+                    <p
+                      className={`text-sm font-semibold ${
+                        task.completed ? "line-through text-text-black-soft" : "text-text-black"
                       }`}
                     >
-                      <Clock className="h-3.5 w-3.5" />
-                      {task.dueDate}
-                    </span>
-                    {task.recurrence && (
-                      <>
-                        <span>·</span>
-                        <span className="text-text-black-soft">{task.recurrence}</span>
-                      </>
-                    )}
+                      {task.title}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-text-black-soft">
+                      <span className="flex items-center gap-1 text-starbucks-green font-medium">
+                        <User className="h-3.5 w-3.5" />
+                        {task.assignee}
+                      </span>
+                      <span>·</span>
+                      <span
+                        className={`flex items-center gap-1 font-medium ${
+                          task.isUrgent ? "text-amber-800 font-semibold" : "text-text-black-soft"
+                        }`}
+                      >
+                        <Clock className="h-3.5 w-3.5" />
+                        {task.dueDate}
+                      </span>
+                      {task.recurrence && (
+                        <>
+                          <span>·</span>
+                          <span className="text-text-black-soft">{task.recurrence}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {task.completed && (
-                <span className="btn-pill text-[10px] text-starbucks-green px-2.5 py-0.5 bg-green-light font-bold shrink-0">
-                  SELESAI
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+                {task.completed && (
+                  <span className="btn-pill text-[10px] text-starbucks-green px-2.5 py-0.5 bg-green-light font-bold shrink-0">
+                    SELESAI
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center text-xs text-text-black-soft space-y-1">
+            <p className="font-semibold text-text-black">Semua tugas rumah tangga sudah selesai</p>
+            <p>Buka halaman Tugas untuk menambahkan jadwal tugas baru.</p>
+          </div>
+        )}
       </section>
 
       {/* 2. DAFTAR BELANJA AKTIF */}
@@ -227,38 +197,45 @@ export function TabAktivitas({
           </Link>
         </div>
 
-        <div className="divide-y divide-border-card">
-          {shoppingItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => toggleShopping(item.id)}
-              className="flex items-center justify-between py-3 px-2 hover:bg-canvas/50 rounded-[8px] cursor-pointer transition-colors"
-            >
-              <div className="flex items-center gap-3.5">
-                <input
-                  type="checkbox"
-                  checked={item.checked}
-                  onChange={() => {}}
-                  className="h-4 w-4 rounded-[4px] border-border-input text-green-accent accent-green-accent cursor-pointer"
-                />
-                <span
-                  className={`text-sm font-medium ${
-                    item.checked ? "line-through text-text-black-soft" : "text-text-black"
-                  }`}
-                >
-                  {item.name}
-                </span>
-              </div>
+        {shoppingItems.length > 0 ? (
+          <div className="divide-y divide-border-card">
+            {shoppingItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => toggleShopping(item.id)}
+                className="flex items-center justify-between py-3 px-2 hover:bg-canvas/50 rounded-[8px] cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-3.5">
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={() => {}}
+                    className="h-4 w-4 rounded-[4px] border-border-input text-green-accent accent-green-accent cursor-pointer"
+                  />
+                  <span
+                    className={`text-sm font-medium ${
+                      item.checked ? "line-through text-text-black-soft" : "text-text-black"
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+                </div>
 
-              <div className="flex items-center gap-2 text-xs text-text-black-soft font-medium">
-                <span className="bg-canvas px-2 py-0.5 rounded-full font-semibold">
-                  {item.quantity}
-                </span>
-                <span className="hidden sm:inline">· {item.category}</span>
+                <div className="flex items-center gap-2 text-xs text-text-black-soft font-medium">
+                  <span className="bg-canvas px-2 py-0.5 rounded-full font-semibold">
+                    {item.quantity}
+                  </span>
+                  <span className="hidden sm:inline">· {item.category}</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center text-xs text-text-black-soft space-y-1">
+            <p className="font-semibold text-text-black">Daftar belanjaan saat ini kosong</p>
+            <p>Tekan "Buka List Belanja" untuk menambahkan kebutuhan mingguan.</p>
+          </div>
+        )}
       </section>
     </div>
   );

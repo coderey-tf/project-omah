@@ -24,10 +24,14 @@ import {
   UserMinus,
   AlertTriangle,
   LogOut,
+  Trash2,
+  X,
 } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
 
 import { createInvitationAction, removeMemberAction, signOutAction } from "@/actions/auth-actions";
+import { createWalletAction, deleteWalletAction } from "@/actions/wallet-actions";
+import { createCategoryAction, deleteCategoryAction } from "@/actions/category-actions";
 import { NotificationChannelsCard, ProfileWithChannels } from "./notification-channels-card";
 
 interface SettingsViewProps {
@@ -147,8 +151,132 @@ export function SettingsView({ initialData }: SettingsViewProps) {
     }
   };
 
-  const expenseCategories = initialData.categories.filter((c) => c.kind === "EXPENSE");
-  const incomeCategories = initialData.categories.filter((c) => c.kind === "INCOME");
+  // Wallets State
+  const [wallets, setWallets] = useState(initialData.wallets);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [walletName, setWalletName] = useState("");
+  const [walletType, setWalletType] = useState<"BANK" | "CASH" | "EWALLET">("BANK");
+  const [walletOpeningBalance, setWalletOpeningBalance] = useState("");
+  const [isSubmittingWallet, setIsSubmittingWallet] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [deletingWalletId, setDeletingWalletId] = useState<string | null>(null);
+
+  // Categories State
+  const [categories, setCategories] = useState(initialData.categories);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryKind, setCategoryKind] = useState<"EXPENSE" | "INCOME">("EXPENSE");
+  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setWallets(initialData.wallets);
+  }, [initialData.wallets]);
+
+  useEffect(() => {
+    setCategories(initialData.categories);
+  }, [initialData.categories]);
+
+  const handleCreateWallet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walletName.trim() || isSubmittingWallet) return;
+    setIsSubmittingWallet(true);
+    setWalletError(null);
+
+    const numBalance = parseFloat(walletOpeningBalance.replace(/[^\d]/g, "")) || 0;
+    try {
+      const res = await createWalletAction({
+        name: walletName.trim(),
+        type: walletType,
+        openingBalance: numBalance,
+      });
+
+      if (res.success && res.wallet) {
+        setWallets((prev) => [...prev, res.wallet!]);
+        setIsWalletModalOpen(false);
+        setWalletName("");
+        setWalletOpeningBalance("");
+        router.refresh();
+      } else {
+        setWalletError(res.error || "Gagal menambahkan dompet");
+      }
+    } catch (err: any) {
+      setWalletError(err.message || "Terjadi kesalahan sistem");
+    } finally {
+      setIsSubmittingWallet(false);
+    }
+  };
+
+  const handleDeleteWallet = async (id: string, name: string) => {
+    if (!confirm(`Hapus dompet / rekening "${name}"?`)) return;
+    setDeletingWalletId(id);
+    try {
+      const res = await deleteWalletAction(id);
+      if (res.success) {
+        setWallets((prev) => prev.filter((w) => w.id !== id));
+        router.refresh();
+      } else {
+        alert(res.error || "Gagal menghapus dompet");
+      }
+    } catch (err: any) {
+      alert(err.message || "Gagal menghapus dompet");
+    } finally {
+      setDeletingWalletId(null);
+    }
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryName.trim() || isSubmittingCategory) return;
+    setIsSubmittingCategory(true);
+    setCategoryError(null);
+
+    try {
+      const res = await createCategoryAction({
+        name: categoryName.trim(),
+        kind: categoryKind,
+      });
+
+      if (res.success && res.category) {
+        setCategories((prev) => {
+          const exists = prev.some((c) => c.id === res.category!.id);
+          if (exists) return prev.map((c) => (c.id === res.category!.id ? res.category! : c));
+          return [...prev, res.category!];
+        });
+        setIsCategoryModalOpen(false);
+        setCategoryName("");
+        router.refresh();
+      } else {
+        setCategoryError(res.error || "Gagal menambahkan kategori");
+      }
+    } catch (err: any) {
+      setCategoryError(err.message || "Terjadi kesalahan sistem");
+    } finally {
+      setIsSubmittingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!confirm(`Hapus / arsipkan kategori "${name}"?`)) return;
+    setDeletingCategoryId(id);
+    try {
+      const res = await deleteCategoryAction(id);
+      if (res.success) {
+        setCategories((prev) => prev.filter((c) => c.id !== id));
+        router.refresh();
+      } else {
+        alert(res.error || "Gagal menghapus kategori");
+      }
+    } catch (err: any) {
+      alert(err.message || "Gagal menghapus kategori");
+    } finally {
+      setDeletingCategoryId(null);
+    }
+  };
+
+  const expenseCategories = categories.filter((c) => c.kind === "EXPENSE");
+  const incomeCategories = categories.filter((c) => c.kind === "INCOME");
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -368,28 +496,57 @@ export function SettingsView({ initialData }: SettingsViewProps) {
               <p className="text-xs text-text-black-soft">Sumber dana pengeluaran dan simpanan</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsWalletModalOpen(true)}
+            className="btn-pill inline-flex items-center gap-1.5 bg-starbucks-green hover:bg-green-accent text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Tambah Dompet</span>
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {initialData.wallets.map((wallet) => (
-            <div
-              key={wallet.id}
-              className="p-4 rounded-[10px] bg-canvas border border-border-card flex flex-col justify-between"
-            >
-              <div>
-                <span className="font-caption-mono text-[10px] px-2 py-0.5 rounded-full bg-white border border-border-card text-text-black-soft font-bold">
-                  {wallet.type}
-                </span>
-                <p className="text-sm font-bold text-text-black mt-2 leading-tight">
-                  {wallet.name}
+        {wallets.length === 0 ? (
+          <div className="text-center py-6 border border-dashed border-border-card rounded-[10px] bg-canvas/50">
+            <Wallet className="h-7 w-7 text-text-black-soft/40 mx-auto mb-2" />
+            <p className="text-xs font-semibold text-text-black-soft">Belum ada dompet terdaftar</p>
+            <p className="text-[11px] text-text-black-soft/70 mt-0.5">
+              Klik &quot;Tambah Dompet&quot; untuk menambahkan rekening bank, kas tunai, atau e-wallet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {wallets.map((wallet) => (
+              <div
+                key={wallet.id}
+                className="p-4 rounded-[10px] bg-canvas border border-border-card flex flex-col justify-between relative group"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-caption-mono text-[10px] px-2 py-0.5 rounded-full bg-white border border-border-card text-text-black-soft font-bold">
+                      {wallet.type}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={deletingWalletId === wallet.id}
+                      onClick={() => handleDeleteWallet(wallet.id, wallet.name)}
+                      className="text-text-black-soft/50 hover:text-red-600 transition-colors p-1 -mr-1 -mt-1 cursor-pointer"
+                      title="Hapus dompet"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-sm font-bold text-text-black mt-2 leading-tight">
+                    {wallet.name}
+                  </p>
+                </div>
+                <p className="font-mono text-base font-bold text-starbucks-green mt-3">
+                  {formatRupiah(wallet.balance)}
                 </p>
               </div>
-              <p className="font-mono text-base font-bold text-starbucks-green mt-3">
-                {formatRupiah(wallet.balance)}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 5. Recurring Bills */}
@@ -464,18 +621,27 @@ export function SettingsView({ initialData }: SettingsViewProps) {
       </div>
 
       {/* 7. Categories List */}
-
       <div className="rounded-[12px] bg-white p-5 border border-border-card shadow-starbucks-card space-y-4">
-        <div className="flex items-center gap-2.5 pb-3 border-b border-border-card">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-light text-starbucks-green">
-            <Tag className="h-5 w-5" />
+        <div className="flex items-center justify-between pb-3 border-b border-border-card">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-light text-starbucks-green">
+              <Tag className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-house-green">
+                Kategori Transaksi
+              </h3>
+              <p className="text-xs text-text-black-soft">Digunakan untuk klasifikasi arus kas</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-serif text-base font-bold text-house-green">
-              Kategori Transaksi
-            </h3>
-            <p className="text-xs text-text-black-soft">Digunakan untuk klasifikasi arus kas</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="btn-pill inline-flex items-center gap-1.5 bg-starbucks-green hover:bg-green-accent text-white px-3.5 py-1.5 text-xs font-semibold shadow-xs cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Tambah Kategori</span>
+          </button>
         </div>
 
         <div className="space-y-3">
@@ -483,32 +649,58 @@ export function SettingsView({ initialData }: SettingsViewProps) {
             <span className="block text-xs font-semibold text-text-black-soft mb-2">
               PENGELUARAN ({expenseCategories.length})
             </span>
-            <div className="flex flex-wrap gap-2">
-              {expenseCategories.map((c) => (
-                <span
-                  key={c.id}
-                  className="btn-pill px-3 py-1 text-xs border border-border-card bg-canvas text-text-black font-medium"
-                >
-                  {c.name}
-                </span>
-              ))}
-            </div>
+            {expenseCategories.length === 0 ? (
+              <p className="text-xs text-text-black-soft italic">Belum ada kategori pengeluaran.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {expenseCategories.map((c) => (
+                  <span
+                    key={c.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs border border-border-card bg-canvas text-text-black font-medium group"
+                  >
+                    <span>{c.name}</span>
+                    <button
+                      type="button"
+                      disabled={deletingCategoryId === c.id}
+                      onClick={() => handleDeleteCategory(c.id, c.name)}
+                      className="text-text-black-soft/50 hover:text-red-600 transition-colors cursor-pointer"
+                      title="Hapus kategori"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="pt-2 border-t border-border-card">
             <span className="block text-xs font-semibold text-text-black-soft mb-2">
               PEMASUKAN ({incomeCategories.length})
             </span>
-            <div className="flex flex-wrap gap-2">
-              {incomeCategories.map((c) => (
-                <span
-                  key={c.id}
-                  className="btn-pill px-3 py-1 text-xs border border-green-accent/30 bg-green-light/40 text-starbucks-green font-semibold"
-                >
-                  {c.name}
-                </span>
-              ))}
-            </div>
+            {incomeCategories.length === 0 ? (
+              <p className="text-xs text-text-black-soft italic">Belum ada kategori pemasukan.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {incomeCategories.map((c) => (
+                  <span
+                    key={c.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs border border-green-accent/30 bg-green-light/40 text-starbucks-green font-semibold group"
+                  >
+                    <span>{c.name}</span>
+                    <button
+                      type="button"
+                      disabled={deletingCategoryId === c.id}
+                      onClick={() => handleDeleteCategory(c.id, c.name)}
+                      className="text-starbucks-green/50 hover:text-red-600 transition-colors cursor-pointer"
+                      title="Hapus kategori"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -800,6 +992,200 @@ export function SettingsView({ initialData }: SettingsViewProps) {
           </div>
         </div>
       )}
+
+      {/* Modal: Tambah Dompet */}
+      {isWalletModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-[16px] bg-white p-6 shadow-2xl border border-border-card space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-border-card">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-light text-starbucks-green">
+                  <Wallet className="h-4 w-4" />
+                </div>
+                <h3 className="text-base font-bold text-house-green">Tambah Dompet Baru</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsWalletModalOpen(false)}
+                className="text-text-black-soft hover:text-text-black cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWallet} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-text-black mb-1">
+                  Nama Dompet / Rekening
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="cth: BCA Tabungan, Kas Tunai, GoPay"
+                  value={walletName}
+                  onChange={(e) => setWalletName(e.target.value)}
+                  className="w-full rounded-[8px] border border-border-input bg-canvas px-3 py-2 text-xs font-medium text-text-black focus:outline-none focus:border-green-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-black mb-1">
+                  Jenis Dompet
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["BANK", "CASH", "EWALLET"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setWalletType(t)}
+                      className={`py-1.5 px-2 rounded-[8px] text-xs font-bold border transition-colors cursor-pointer ${
+                        walletType === t
+                          ? "bg-starbucks-green text-white border-starbucks-green"
+                          : "bg-canvas text-text-black-soft border-border-card hover:bg-warm-sand"
+                      }`}
+                    >
+                      {t === "BANK" ? "Bank" : t === "CASH" ? "Tunai" : "E-Wallet"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-black mb-1">
+                  Saldo Awal (Opsional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Rp 0"
+                  value={walletOpeningBalance}
+                  onChange={(e) => setWalletOpeningBalance(e.target.value)}
+                  className="w-full rounded-[8px] border border-border-input bg-canvas px-3 py-2 text-xs font-medium text-text-black focus:outline-none focus:border-green-accent font-mono"
+                />
+              </div>
+
+              {walletError && (
+                <div className="p-2.5 rounded-[8px] bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
+                  {walletError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-card">
+                <button
+                  type="button"
+                  disabled={isSubmittingWallet}
+                  onClick={() => setIsWalletModalOpen(false)}
+                  className="btn-pill px-4 py-2 text-xs font-semibold text-text-black-soft hover:bg-warm-sand/50 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingWallet}
+                  className="btn-pill inline-flex items-center gap-1.5 bg-starbucks-green hover:bg-green-accent disabled:opacity-50 text-white px-4 py-2 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>{isSubmittingWallet ? "Menyimpan..." : "Simpan Dompet"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Tambah Kategori */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-[16px] bg-white p-6 shadow-2xl border border-border-card space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-border-card">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-light text-starbucks-green">
+                  <Tag className="h-4 w-4" />
+                </div>
+                <h3 className="text-base font-bold text-house-green">Tambah Kategori</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="text-text-black-soft hover:text-text-black cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCategory} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-text-black mb-1">
+                  Nama Kategori
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="cth: Kopi & Nongkrong, Langganan, dll"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  className="w-full rounded-[8px] border border-border-input bg-canvas px-3 py-2 text-xs font-medium text-text-black focus:outline-none focus:border-green-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-black mb-1">
+                  Jenis Kategori
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCategoryKind("EXPENSE")}
+                    className={`py-1.5 px-2 rounded-[8px] text-xs font-bold border transition-colors cursor-pointer ${
+                      categoryKind === "EXPENSE"
+                        ? "bg-starbucks-green text-white border-starbucks-green"
+                        : "bg-canvas text-text-black-soft border-border-card hover:bg-warm-sand"
+                    }`}
+                  >
+                    Pengeluaran
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryKind("INCOME")}
+                    className={`py-1.5 px-2 rounded-[8px] text-xs font-bold border transition-colors cursor-pointer ${
+                      categoryKind === "INCOME"
+                        ? "bg-starbucks-green text-white border-starbucks-green"
+                        : "bg-canvas text-text-black-soft border-border-card hover:bg-warm-sand"
+                    }`}
+                  >
+                    Pemasukan
+                  </button>
+                </div>
+              </div>
+
+              {categoryError && (
+                <div className="p-2.5 rounded-[8px] bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
+                  {categoryError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-card">
+                <button
+                  type="button"
+                  disabled={isSubmittingCategory}
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="btn-pill px-4 py-2 text-xs font-semibold text-text-black-soft hover:bg-warm-sand/50 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingCategory}
+                  className="btn-pill inline-flex items-center gap-1.5 bg-starbucks-green hover:bg-green-accent disabled:opacity-50 text-white px-4 py-2 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>{isSubmittingCategory ? "Menyimpan..." : "Simpan Kategori"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

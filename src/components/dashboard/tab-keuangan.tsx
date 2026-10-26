@@ -85,45 +85,16 @@ export function TabKeuangan({
     }
   }, [initialBills]);
 
-  const [wallets] = useState<WalletItem[]>(
-    initialWallets || [
-      { id: "w1", name: "BCA Rekening Bersama", type: "Rekening Bank", balance: 14200000 },
-      { id: "w2", name: "Kas Tunai Dompet", type: "Uang Tunai", balance: 1750000 },
-      { id: "w3", name: "GoPay / OVO Kebutuhan", type: "Dompet Digital", balance: 2500000 },
-    ]
-  );
+  const [wallets, setWallets] = useState<WalletItem[]>(initialWallets || []);
+  const [transactions, setTransactions] = useState<TransactionItem[]>(initialTransactions || []);
 
-  const [transactions] = useState<TransactionItem[]>(
-    initialTransactions || [
-      {
-        id: "t1",
-        description: "Belanja Sayur & Buah Segar",
-        amount: 85000,
-        type: "EXPENSE",
-        category: "Bahan Makanan",
-        walletName: "Kas Tunai",
-        date: "Hari ini, 08:30 WIB",
-      },
-      {
-        id: "t2",
-        description: "Bensin Pertamax Motor",
-        amount: 50000,
-        type: "EXPENSE",
-        category: "Transportasi",
-        walletName: "GoPay",
-        date: "Kemarin, 17:15 WIB",
-      },
-      {
-        id: "t3",
-        description: "Transfer Honor Proyek Tambahan",
-        amount: 2500000,
-        type: "INCOME",
-        category: "Pemasukan",
-        walletName: "BCA Bersama",
-        date: "30 Sep 2026",
-      },
-    ]
-  );
+  useEffect(() => {
+    if (initialWallets) setWallets(initialWallets);
+  }, [initialWallets]);
+
+  useEffect(() => {
+    if (initialTransactions) setTransactions(initialTransactions);
+  }, [initialTransactions]);
 
   const pendingBills = bills.filter((b) => !b.isPaidThisCycle);
   const paidBills = bills.filter((b) => b.isPaidThisCycle);
@@ -340,7 +311,7 @@ export function TabKeuangan({
             DOMPET & REKENING AKTIF
           </span>
           <Link
-            href="/wallets"
+            href="/settings"
             className="flex items-center gap-1 text-xs text-green-accent hover:underline font-semibold"
           >
             <span>Kelola Dompet</span>
@@ -348,29 +319,41 @@ export function TabKeuangan({
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          {wallets.map((wallet) => (
-            <div
-              key={wallet.id}
-              className="rounded-[12px] bg-white p-5 shadow-starbucks-card border border-border-card transition-all hover:border-green-accent"
-            >
-              <div className="flex items-center justify-between text-text-black-soft mb-2">
-                <span className="text-xs text-text-black-soft font-medium">
-                  {wallet.type}
-                </span>
-                <div className="h-8 w-8 rounded-full bg-green-light/40 flex items-center justify-center text-starbucks-green">
-                  <Wallet className="h-4 w-4" />
+        {wallets.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            {wallets.map((wallet) => (
+              <div
+                key={wallet.id}
+                className="rounded-[12px] bg-white p-5 shadow-starbucks-card border border-border-card transition-all hover:border-green-accent"
+              >
+                <div className="flex items-center justify-between text-text-black-soft mb-2">
+                  <span className="text-xs text-text-black-soft font-medium">
+                    {wallet.type}
+                  </span>
+                  <div className="h-8 w-8 rounded-full bg-green-light/40 flex items-center justify-center text-starbucks-green">
+                    <Wallet className="h-4 w-4" />
+                  </div>
                 </div>
+                <h4 className="text-sm text-text-black font-semibold truncate mb-1">
+                  {wallet.name}
+                </h4>
+                <p className="text-xl font-bold text-text-black">
+                  {formatRupiah(wallet.balance)}
+                </p>
               </div>
-              <h4 className="text-sm text-text-black font-semibold truncate mb-1">
-                {wallet.name}
-              </h4>
-              <p className="text-xl font-bold text-text-black">
-                {formatRupiah(wallet.balance)}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[12px] bg-white p-6 border border-border-card text-center space-y-2.5 shadow-2xs">
+            <p className="text-xs text-text-black-soft">Belum ada dompet atau rekening yang didaftarkan.</p>
+            <Link
+              href="/settings"
+              className="btn-pill inline-flex items-center gap-1.5 bg-starbucks-green hover:bg-house-green text-white px-4 py-2 text-xs font-semibold shadow-xs"
+            >
+              <span>+ Tambah Dompet Sekarang</span>
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* 3. TIGA TRANSAKSI TERAKHIR */}
@@ -382,55 +365,64 @@ export function TabKeuangan({
             </span>
             <h3 className="text-base text-text-black font-bold">3 Transaksi Terakhir</h3>
           </div>
-          <Link
-            href="/transactions"
-            className="btn-pill border border-green-accent text-green-accent hover:bg-green-light/30 px-3.5 py-1.5 text-xs font-semibold transition-colors"
-          >
-            Lihat Semua →
-          </Link>
-        </div>
-
-        <div className="divide-y divide-border-card">
-          {transactions.map((tx) => (
-            <div
-              key={tx.id}
-              className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 hover:bg-canvas/50 px-2 rounded-[8px] transition-colors"
+          {transactions.length > 0 && (
+            <Link
+              href="/transactions"
+              className="btn-pill border border-green-accent text-green-accent hover:bg-green-light/30 px-3.5 py-1.5 text-xs font-semibold transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                    tx.type === "INCOME"
-                      ? "bg-green-light text-starbucks-green"
-                      : "bg-canvas text-text-black-soft"
-                  }`}
-                >
-                  {tx.type === "INCOME" ? (
-                    <ArrowUpRight className="h-4 w-4" />
-                  ) : (
-                    <ArrowDownRight className="h-4 w-4 text-danger" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-text-black">{tx.description}</p>
-                  <p className="text-xs text-text-black-soft">
-                    {tx.category} · {tx.walletName} · {tx.date}
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <span
-                  className={`text-sm font-bold ${
-                    tx.type === "INCOME" ? "text-starbucks-green" : "text-text-black"
-                  }`}
-                >
-                  {tx.type === "INCOME" ? "+" : "-"}
-                  {formatRupiah(tx.amount)}
-                </span>
-              </div>
-            </div>
-          ))}
+              Lihat Semua →
+            </Link>
+          )}
         </div>
+
+        {transactions.length > 0 ? (
+          <div className="divide-y divide-border-card">
+            {transactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0 hover:bg-canvas/50 px-2 rounded-[8px] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                      tx.type === "INCOME"
+                        ? "bg-green-light text-starbucks-green"
+                        : "bg-canvas text-text-black-soft"
+                    }`}
+                  >
+                    {tx.type === "INCOME" ? (
+                      <ArrowUpRight className="h-4 w-4" />
+                    ) : (
+                      <ArrowDownRight className="h-4 w-4 text-danger" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-text-black">{tx.description}</p>
+                    <p className="text-xs text-text-black-soft">
+                      {tx.category} · {tx.walletName} · {tx.date}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span
+                    className={`text-sm font-bold ${
+                      tx.type === "INCOME" ? "text-starbucks-green" : "text-text-black"
+                    }`}
+                  >
+                    {tx.type === "INCOME" ? "+" : "-"}
+                    {formatRupiah(tx.amount)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center text-xs text-text-black-soft space-y-1">
+            <p className="font-semibold text-text-black">Belum ada transaksi bulan ini</p>
+            <p>Gunakan tombol + di kanan bawah untuk mencatat pengeluaran atau pemasukan baru.</p>
+          </div>
+        )}
       </section>
 
       {/* 4. MODAL BAYAR TAGIHAN */}

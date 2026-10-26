@@ -13,17 +13,16 @@ interface StatClusterProps {
 }
 
 export function StatCluster({
-  totalBalance = 18450000,
-  periodSpent = 4850000,
-  periodBudget = 9000000,
-  todayExpense = 125000,
-  monthlyIncome = 15000000,
-  periodDates = "1 Okt — 31 Okt 2026",
+  totalBalance = 0,
+  periodSpent = 0,
+  periodBudget = 0,
+  todayExpense = 0,
+  monthlyIncome = 0,
+  periodDates = "Bulan Ini",
 }: Partial<StatClusterProps>) {
-  const budgetPercentage = Math.min(
-    100,
-    Math.round((periodSpent / (periodBudget || 1)) * 100)
-  );
+  const budgetPercentage = periodBudget > 0
+    ? Math.min(100, Math.round((periodSpent / periodBudget) * 100))
+    : 0;
 
   // Status color based on budget percentage
   const getProgressColor = () => {

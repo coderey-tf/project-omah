@@ -42,6 +42,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { TopProgressBar } from "@/components/layout/top-progress-bar";
+
 export default function RootLayout({
   children,
 }: {
@@ -53,6 +55,7 @@ export default function RootLayout({
       className={`${inter.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-canvas text-text-black font-sans selection:bg-green-light selection:text-house-green">
+        <TopProgressBar />
         {children}
       </body>
     </html>
