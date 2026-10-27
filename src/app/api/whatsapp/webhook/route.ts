@@ -8,6 +8,16 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify WAHA webhook API key
+    const wahaApiKey = process.env.WAHA_API_KEY;
+    if (wahaApiKey) {
+      const headerKey = request.headers.get("x-api-key");
+      if (headerKey !== wahaApiKey) {
+        console.warn("[WAHA Webhook] Invalid or missing API key");
+        return NextResponse.json({ ok: false }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
 
     // Check WAHA event

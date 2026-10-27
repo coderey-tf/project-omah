@@ -8,6 +8,16 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify Telegram webhook secret token
+    const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const headerSecret = request.headers.get("x-telegram-bot-api-secret-token");
+      if (headerSecret !== webhookSecret) {
+        console.warn("[Telegram Webhook] Invalid or missing secret token");
+        return NextResponse.json({ ok: false }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
 
     const message = body.message;
@@ -92,52 +102,19 @@ export async function POST(request: NextRequest) {
     // 2. /start without code
     if (text.startsWith("/start")) {
 
-      // If no code or already linked or first time
+      // If not linked, instruct user to use a linking code from the app
       if (!channel) {
-        // Auto-link to default admin profile if single household demo
-        const defaultHousehold = await prisma.household.findFirst({
-          include: { profiles: true },
+        await sendTelegramMessage({
+          chatId,
+          text: [
+            `☕ <b>Selamat Datang di Bot Omahku System!</b>`,
+            ``,
+            `Untuk menghubungkan akun Telegram Anda, silakan buat kode penautan melalui menu <b>Pengaturan → Notifikasi</b> di aplikasi Omahku.`,
+            ``,
+            `Kirim kode 6 karakter tersebut ke sini, atau klik tautan yang diberikan di aplikasi.`,
+          ].join("\n"),
         });
-
-        if (defaultHousehold && defaultHousehold.profiles.length > 0) {
-          const profile = defaultHousehold.profiles[0];
-          await prisma.notificationChannel.upsert({
-            where: {
-              profileId_channel: {
-                profileId: profile.id,
-                channel: NotificationChannelType.TELEGRAM,
-              },
-            },
-            create: {
-              profileId: profile.id,
-              channel: NotificationChannelType.TELEGRAM,
-              address: chatId,
-              linkedAt: new Date(),
-              isActive: true,
-            },
-            update: {
-              address: chatId,
-              linkedAt: new Date(),
-              isActive: true,
-            },
-          });
-
-          await sendTelegramMessage({
-            chatId,
-            text: [
-              `☕ <b>Selamat Datang di Bot Omahku System!</b>`,
-              `Halo <b>${profile.displayName}</b>, bot telah terhubung dengan <b>${defaultHousehold.name}</b>.`,
-              ``,
-              `<b>Perintah yang tersedia:</b>`,
-              `• /saldo — Cek total saldo kas & rekening aktif`,
-              `• /tagihan — Cek tagihan jatuh tempo bulan ini`,
-              `• /tugas — Cek daftar tugas rumah yang belum selesai`,
-              `• /help — Bantuan perintah`,
-            ].join("\n"),
-          });
-
-          return NextResponse.json({ ok: true });
-        }
+        return NextResponse.json({ ok: true });
       }
 
       await sendTelegramMessage({

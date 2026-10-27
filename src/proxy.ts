@@ -14,7 +14,6 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/api/whatsapp") ||
     pathname.startsWith("/api/cron") ||
     pathname.startsWith("/api/ical") ||
-    pathname.startsWith("/api/export") ||
     pathname.startsWith("/manifest") ||
     pathname.startsWith("/icons") ||
     pathname.startsWith("/favicon.ico");

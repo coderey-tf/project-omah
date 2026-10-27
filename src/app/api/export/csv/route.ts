@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateDefaultHousehold } from "@/lib/data/households";
 import { getBudgetsWithSpent } from "@/lib/data/budgets";
 import { getBillsForHousehold } from "@/lib/data/bills";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,25 @@ function generateCsv(headers: string[], rows: (string | number | boolean | null 
 
 export async function GET(request: NextRequest) {
   try {
+    // Auth check: require session cookie or Supabase auth
+    const cookieStore = await cookies();
+    const omahSession = cookieStore.get("omah_session")?.value;
+    let isAuthenticated = Boolean(omahSession);
+
+    if (!isAuthenticated) {
+      try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) isAuthenticated = true;
+      } catch {
+        // Supabase not configured
+      }
+    }
+
+    if (!isAuthenticated) {
+      return new Response("Unauthorized — silakan login terlebih dahulu", { status: 401 });
+    }
+
     const household = await getOrCreateDefaultHousehold();
     const type = request.nextUrl.searchParams.get("type") || "transactions";
     const today = new Date().toISOString().slice(0, 10);
