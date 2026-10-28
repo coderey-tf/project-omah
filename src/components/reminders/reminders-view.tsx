@@ -26,6 +26,7 @@ import {
   unmarkReminderDoneAction,
   deleteReminderAction,
 } from "@/actions/reminder-actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { EnrichedReminder } from "@/lib/data/reminders";
 
 interface RemindersViewProps {
@@ -36,6 +37,7 @@ export function RemindersView({ initialReminders }: RemindersViewProps) {
   const router = useRouter();
   const [reminders, setReminders] = useState<EnrichedReminder[]>(initialReminders || []);
   const [activeFilter, setActiveFilter] = useState<"ALL" | "URGENT" | "UPCOMING" | "DONE">("ALL");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialReminders) {
@@ -201,7 +203,6 @@ export function RemindersView({ initialReminders }: RemindersViewProps) {
   };
 
   const handleDelete = async (reminderId: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus pengingat ini?")) return;
     setLoadingActionId(reminderId);
     try {
       await deleteReminderAction(reminderId);
@@ -391,7 +392,7 @@ export function RemindersView({ initialReminders }: RemindersViewProps) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(rem.id)}
+                      onClick={() => setDeleteTargetId(rem.id)}
                       className="p-1 rounded text-text-black-soft hover:text-danger hover:bg-canvas transition-colors cursor-pointer"
                       title="Hapus pengingat"
                     >
@@ -609,6 +610,22 @@ export function RemindersView({ initialReminders }: RemindersViewProps) {
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Hapus Pengingat"
+        description="Apakah Anda yakin ingin menghapus pengingat ini? Pengingat otomatis via bot juga akan dibatalkan."
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await handleDelete(deleteTargetId);
+          }
+        }}
+      />
     </div>
   );
 }

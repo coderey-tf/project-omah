@@ -40,7 +40,8 @@ Not a SaaS product — a single-household private tool. The differentiator is sp
 - Household tasks: assignee, due date, recurrence, real-time sync
 - Document/date reminders: STNK, insurance, passport, warranty expiry
 - Telegram bot: account linking via one-time code, reminders for bills/documents/budgets
-- CSV export: transactions, budgets, bills
+- CSV export: transactions, budgets, bills, kondangan
+- Excel/CSV import & export for Kondangan with interactive validation preview
 - Audit log: financial module changes tracked (who changed what)
 - iCal feed: bills and reminders as calendar events
 

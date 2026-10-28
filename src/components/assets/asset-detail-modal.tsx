@@ -19,6 +19,7 @@ import {
   MapPin,
   FileText,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface AssetDetailModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export function AssetDetailModal({
   onAddService,
   onDeleteAsset,
 }: AssetDetailModalProps) {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
   if (!isOpen || !asset) return null;
 
   const isVehicle = asset.type === "VEHICLE_CAR" || asset.type === "VEHICLE_MOTORCYCLE";
@@ -217,13 +220,8 @@ export function AssetDetailModal({
         {/* Footer Actions */}
         <div className="p-4 border-t border-border-card bg-canvas/30 flex items-center justify-between">
           <button
-            onClick={() => {
-              if (confirm(`Yakin ingin menghapus ${asset.name}? Riwayat servis tidak akan hilang permanen namun aset disembunyikan.`)) {
-                onDeleteAsset(asset.id);
-                onClose();
-              }
-            }}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs font-semibold"
+            onClick={() => setIsConfirmDeleteOpen(true)}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
             <span>Hapus Aset</span>
@@ -237,6 +235,21 @@ export function AssetDetailModal({
           </button>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={isConfirmDeleteOpen}
+        onOpenChange={setIsConfirmDeleteOpen}
+        title={`Hapus Aset ${asset.name}`}
+        description={`Apakah Anda yakin ingin menghapus ${asset.name}? Riwayat servis tidak akan hilang permanen namun aset akan disembunyikan.`}
+        confirmText="Ya, Hapus Aset"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={() => {
+          onDeleteAsset(asset.id);
+          onClose();
+        }}
+      />
     </div>
   );
 }

@@ -135,3 +135,71 @@ export async function deleteKondanganAction(id: string) {
     return { success: false, error: error.message || "Gagal menghapus catatan kondangan" };
   }
 }
+
+export interface ImportKondanganRecordPayload {
+  type: KondanganType;
+  personName: string;
+  eventName: string;
+  eventDate: string;
+  amount: number | null;
+  giftItem: string | null;
+  notes: string | null;
+}
+
+export async function importKondanganRecordsAction(records: ImportKondanganRecordPayload[]) {
+  try {
+    const household = await getOrCreateDefaultHousehold();
+    const currentProfile = household.profiles[0];
+
+    if (!records || records.length === 0) {
+      return { success: false, error: "Tidak ada data yang valid untuk diimpor" };
+    }
+
+    const validData = records
+      .filter((r) => r.personName && r.personName.trim().length >= 2 && (r.amount || r.giftItem))
+      .map((r) => {
+        const dateStr = r.eventDate && r.eventDate.includes("-") ? r.eventDate : new Date().toISOString().split("T")[0];
+        return {
+          householdId: household.id,
+          type: r.type,
+          personName: r.personName.trim(),
+          eventName: r.eventName?.trim() || "Acara Keluarga",
+          eventDate: new Date(`${dateStr}T00:00:00.000Z`),
+          amount: r.amount ? BigInt(r.amount) : null,
+          giftItem: r.giftItem?.trim() || null,
+          notes: r.notes?.trim() || null,
+        };
+      });
+
+    if (validData.length === 0) {
+      return { success: false, error: "Semua baris data tidak memenuhi syarat validasi" };
+    }
+
+    const result = await prisma.kondanganRecord.createMany({
+      data: validData,
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        householdId: household.id,
+        actorId: currentProfile.id,
+        entity: "KONDANGAN_RECORD",
+        entityId: household.id,
+        action: AuditAction.CREATE,
+        diff: {
+          action: "BULK_IMPORT",
+          totalImported: result.count,
+        },
+      },
+    });
+
+    revalidatePath("/kondangan");
+    revalidatePath("/");
+
+    return { success: true, count: result.count };
+  } catch (error: any) {
+    console.error("importKondanganRecordsAction error:", error);
+    return { success: false, error: error.message || "Gagal mengimpor catatan kondangan" };
+  }
+}
+

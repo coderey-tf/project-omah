@@ -100,6 +100,42 @@ export async function GET(request: NextRequest) {
         b.categoryName,
       ]);
       csvContent = generateCsv(headers, rows);
+    } else if (type === "kondangan") {
+      filename = `omahku-kondangan-${today}.csv`;
+      const kondanganType = request.nextUrl.searchParams.get("kondanganType");
+      const whereClause: any = { householdId: household.id, deletedAt: null };
+      if (kondanganType === "GIVEN" || kondanganType === "RECEIVED") {
+        whereClause.type = kondanganType;
+      }
+
+      const records = await prisma.kondanganRecord.findMany({
+        where: whereClause,
+        orderBy: { eventDate: "desc" },
+      });
+
+      const headers = [
+        "No",
+        "Tipe",
+        "Nama Kerabat",
+        "Nama Acara",
+        "Tanggal Acara",
+        "Nominal (Rp)",
+        "Kado Barang",
+        "Catatan",
+      ];
+
+      const rows = records.map((r, idx) => [
+        idx + 1,
+        r.type === "GIVEN" ? "DIBERIKAN (KONDANGAN)" : "DITERIMA (HAJATAN)",
+        r.personName,
+        r.eventName,
+        r.eventDate.toISOString().slice(0, 10),
+        r.amount ? Number(r.amount) : 0,
+        r.giftItem || "-",
+        r.notes || "-",
+      ]);
+
+      csvContent = generateCsv(headers, rows);
     } else {
       // Default: transactions
       filename = `omahku-transaksi-${today}.csv`;

@@ -6,6 +6,7 @@ import type { MealPlanItem } from "@/lib/data/meal-plan";
 import { AddMealModal } from "./add-meal-modal";
 import { PushToShoppingModal } from "./push-to-shopping-modal";
 import { toggleMealCookedAction, deleteMealPlanAction } from "@/actions/meal-plan-actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   UtensilsCrossed,
   Calendar,
@@ -60,6 +61,7 @@ export function MealsView({
     ingredients?: string[];
     notes?: string | null;
   } | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Compute 7 days of current viewed week based on weekOffset
   const baseDate = new Date(currentWeekStart);
@@ -88,7 +90,6 @@ export function MealsView({
   };
 
   const handleDeleteMeal = async (mealId: string) => {
-    if (!confirm("Hapus rencana menu ini?")) return;
     const res = await deleteMealPlanAction(mealId);
     if (res.success) {
       setMeals((prev) => prev.filter((m) => m.id !== mealId));
@@ -348,8 +349,8 @@ export function MealsView({
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteMeal(meal.id)}
-                            className="text-text-black-soft hover:text-red-600 transition-colors p-0.5"
+                            onClick={() => setDeleteTargetId(meal.id)}
+                            className="text-text-black-soft hover:text-red-600 transition-colors p-0.5 cursor-pointer"
                             title="Hapus"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -384,6 +385,22 @@ export function MealsView({
         }}
         shoppingLists={shoppingLists}
         ingredients={allIngredients}
+      />
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Hapus Rencana Menu"
+        description="Apakah Anda yakin ingin menghapus masakan ini dari jadwal menu mingguan keluarga?"
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await handleDeleteMeal(deleteTargetId);
+          }
+        }}
       />
     </div>
   );

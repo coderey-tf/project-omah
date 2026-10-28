@@ -16,6 +16,7 @@ import {
   clearCheckedShoppingItemsAction,
 } from "@/actions/shopping-actions";
 import { useRealtime } from "@/hooks/use-realtime";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface ShoppingItem {
   id: string;
@@ -49,6 +50,7 @@ export function ShoppingView({ initialData }: ShoppingViewProps) {
   const [newName, setNewName] = useState("");
   const [newQty, setNewQty] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
   const uncheckedItems = items.filter((i) => !i.checked);
   const checkedItems = items.filter((i) => i.checked);
@@ -109,7 +111,6 @@ export function ShoppingView({ initialData }: ShoppingViewProps) {
   };
 
   const handleClearChecked = async () => {
-    if (!confirm("Hapus semua barang yang sudah dicentang?")) return;
     setItems((prev) => prev.filter((i) => !i.checked));
     await clearCheckedShoppingItemsAction(initialData.listId);
   };
@@ -129,7 +130,7 @@ export function ShoppingView({ initialData }: ShoppingViewProps) {
 
         {checkedCount > 0 && (
           <button
-            onClick={handleClearChecked}
+            onClick={() => setIsClearConfirmOpen(true)}
             className="btn-pill inline-flex items-center gap-1.5 border border-border-card bg-white hover:bg-canvas px-4 py-2 text-xs font-semibold text-text-black-soft hover:text-red-600 transition-colors cursor-pointer self-start sm:self-auto"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -298,6 +299,18 @@ export function ShoppingView({ initialData }: ShoppingViewProps) {
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={isClearConfirmOpen}
+        onOpenChange={setIsClearConfirmOpen}
+        title="Bersihkan Barang Selesai"
+        description="Apakah Anda yakin ingin menghapus semua barang belanja yang sudah dicentang dari daftar?"
+        confirmText="Ya, Hapus Semua"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={handleClearChecked}
+      />
     </div>
   );
 }

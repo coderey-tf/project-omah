@@ -8,6 +8,7 @@ import {
   deleteSavingsGoalAction,
 } from "@/actions/savings-actions";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Target,
   Plus,
@@ -32,6 +33,7 @@ export function SavingsCard({ initialGoals }: SavingsCardProps) {
   const [goals, setGoals] = useState<EnrichedSavingsGoal[]>(initialGoals || []);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<EnrichedSavingsGoal | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Form states for adding
   const [nameInput, setNameInput] = useState("");
@@ -139,8 +141,6 @@ export function SavingsCard({ initialGoals }: SavingsCardProps) {
   };
 
   const handleDeleteGoal = async (goalId: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus target tabungan ini?")) return;
-
     try {
       const res = await deleteSavingsGoalAction(goalId);
       if (res.success) {
@@ -255,7 +255,7 @@ export function SavingsCard({ initialGoals }: SavingsCardProps) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleDeleteGoal(goal.id)}
+                    onClick={() => setDeleteTargetId(goal.id)}
                     className="p-1.5 text-text-black-soft hover:text-danger rounded hover:bg-white transition-colors cursor-pointer"
                     title="Hapus target tabungan"
                   >
@@ -539,6 +539,22 @@ export function SavingsCard({ initialGoals }: SavingsCardProps) {
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Hapus Target Tabungan"
+        description="Apakah Anda yakin ingin menghapus target tabungan ini? Data akumulasi saldo target ini akan dihapus."
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await handleDeleteGoal(deleteTargetId);
+          }
+        }}
+      />
     </section>
   );
 }

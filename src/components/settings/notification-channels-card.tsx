@@ -25,6 +25,7 @@ import {
   unlinkNotificationChannelAction,
   sendTestNotificationAction,
 } from "@/actions/notification-actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export interface ChannelItem {
   id: string;
@@ -64,6 +65,7 @@ export function NotificationChannelsCard({ profiles }: NotificationChannelsCardP
   const [waPhoneNumber, setWaPhoneNumber] = useState("");
   const [isLinkingWa, setIsLinkingWa] = useState(false);
   const [waError, setWaError] = useState<string | null>(null);
+  const [unlinkTargetId, setUnlinkTargetId] = useState<string | null>(null);
   const [waSuccess, setWaSuccess] = useState<string | null>(null);
 
   // Testing & Action State
@@ -135,7 +137,6 @@ export function NotificationChannelsCard({ profiles }: NotificationChannelsCardP
   };
 
   const handleUnlink = async (channelId: string) => {
-    if (!confirm("Apakah Anda yakin ingin memutuskan saluran notifikasi ini?")) return;
     try {
       await unlinkNotificationChannelAction(channelId);
       router.refresh();
@@ -282,7 +283,7 @@ export function NotificationChannelsCard({ profiles }: NotificationChannelsCardP
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleUnlink(telegramChannel.id)}
+                          onClick={() => setUnlinkTargetId(telegramChannel.id)}
                           className="p-1.5 rounded-[6px] hover:bg-red-50 text-text-black-soft hover:text-red-600 transition-colors cursor-pointer"
                           title="Putuskan saluran"
                         >
@@ -373,7 +374,7 @@ export function NotificationChannelsCard({ profiles }: NotificationChannelsCardP
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleUnlink(whatsappChannel.id)}
+                          onClick={() => setUnlinkTargetId(whatsappChannel.id)}
                           className="p-1.5 rounded-[6px] hover:bg-red-50 text-text-black-soft hover:text-red-600 transition-colors cursor-pointer"
                           title="Putuskan saluran"
                         >
@@ -579,6 +580,22 @@ export function NotificationChannelsCard({ profiles }: NotificationChannelsCardP
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(unlinkTargetId)}
+        onOpenChange={(open) => !open && setUnlinkTargetId(null)}
+        title="Putuskan Saluran Notifikasi"
+        description="Apakah Anda yakin ingin memutuskan saluran notifikasi ini? Anda tidak akan lagi menerima pesan bot pengingat melalui akun ini."
+        confirmText="Ya, Putuskan"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (unlinkTargetId) {
+            await handleUnlink(unlinkTargetId);
+          }
+        }}
+      />
     </div>
   );
 }

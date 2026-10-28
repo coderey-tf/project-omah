@@ -33,6 +33,7 @@ import { createInvitationAction, removeMemberAction, signOutAction } from "@/act
 import { createWalletAction, deleteWalletAction } from "@/actions/wallet-actions";
 import { createCategoryAction, deleteCategoryAction } from "@/actions/category-actions";
 import { NotificationChannelsCard, ProfileWithChannels } from "./notification-channels-card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface SettingsViewProps {
   initialData: {
@@ -170,6 +171,18 @@ export function SettingsView({ initialData }: SettingsViewProps) {
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
 
+  const [confirmDialogState, setConfirmDialogState] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
   useEffect(() => {
     setWallets(initialData.wallets);
   }, [initialData.wallets]);
@@ -208,22 +221,28 @@ export function SettingsView({ initialData }: SettingsViewProps) {
     }
   };
 
-  const handleDeleteWallet = async (id: string, name: string) => {
-    if (!confirm(`Hapus dompet / rekening "${name}"?`)) return;
-    setDeletingWalletId(id);
-    try {
-      const res = await deleteWalletAction(id);
-      if (res.success) {
-        setWallets((prev) => prev.filter((w) => w.id !== id));
-        router.refresh();
-      } else {
-        alert(res.error || "Gagal menghapus dompet");
-      }
-    } catch (err: any) {
-      alert(err.message || "Gagal menghapus dompet");
-    } finally {
-      setDeletingWalletId(null);
-    }
+  const handleDeleteWallet = (id: string, name: string) => {
+    setConfirmDialogState({
+      isOpen: true,
+      title: "Hapus Dompet / Rekening",
+      description: `Apakah Anda yakin ingin menghapus atau mengarsipkan dompet "${name}"?`,
+      onConfirm: async () => {
+        setDeletingWalletId(id);
+        try {
+          const res = await deleteWalletAction(id);
+          if (res.success) {
+            setWallets((prev) => prev.filter((w) => w.id !== id));
+            router.refresh();
+          } else {
+            alert(res.error || "Gagal menghapus dompet");
+          }
+        } catch (err: any) {
+          alert(err.message || "Gagal menghapus dompet");
+        } finally {
+          setDeletingWalletId(null);
+        }
+      },
+    });
   };
 
   const handleCreateCategory = async (e: React.FormEvent) => {
@@ -257,22 +276,28 @@ export function SettingsView({ initialData }: SettingsViewProps) {
     }
   };
 
-  const handleDeleteCategory = async (id: string, name: string) => {
-    if (!confirm(`Hapus / arsipkan kategori "${name}"?`)) return;
-    setDeletingCategoryId(id);
-    try {
-      const res = await deleteCategoryAction(id);
-      if (res.success) {
-        setCategories((prev) => prev.filter((c) => c.id !== id));
-        router.refresh();
-      } else {
-        alert(res.error || "Gagal menghapus kategori");
-      }
-    } catch (err: any) {
-      alert(err.message || "Gagal menghapus kategori");
-    } finally {
-      setDeletingCategoryId(null);
-    }
+  const handleDeleteCategory = (id: string, name: string) => {
+    setConfirmDialogState({
+      isOpen: true,
+      title: "Hapus / Arsipkan Kategori",
+      description: `Apakah Anda yakin ingin menghapus kategori "${name}"? Data transaksi lama tetap tersimpan.`,
+      onConfirm: async () => {
+        setDeletingCategoryId(id);
+        try {
+          const res = await deleteCategoryAction(id);
+          if (res.success) {
+            setCategories((prev) => prev.filter((c) => c.id !== id));
+            router.refresh();
+          } else {
+            alert(res.error || "Gagal menghapus kategori");
+          }
+        } catch (err: any) {
+          alert(err.message || "Gagal menghapus kategori");
+        } finally {
+          setDeletingCategoryId(null);
+        }
+      },
+    });
   };
 
   const expenseCategories = categories.filter((c) => c.kind === "EXPENSE");
@@ -1185,6 +1210,20 @@ export function SettingsView({ initialData }: SettingsViewProps) {
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmDialogState.isOpen}
+        onOpenChange={(open) =>
+          setConfirmDialogState((prev) => ({ ...prev, isOpen: open }))
+        }
+        title={confirmDialogState.title}
+        description={confirmDialogState.description}
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={confirmDialogState.onConfirm}
+      />
     </div>
   );
 }

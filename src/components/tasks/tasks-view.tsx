@@ -20,6 +20,7 @@ import {
 } from "@/actions/task-actions";
 import { Recurrence } from "@/types/enums";
 import { useRealtime } from "@/hooks/use-realtime";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface TaskItem {
   id: string;
@@ -68,6 +69,7 @@ export function TasksView({ initialData }: TasksViewProps) {
   const [filterStatus, setFilterStatus] = useState<"ALL" | "PENDING" | "URGENT" | "COMPLETED">("ALL");
   const [filterAssignee, setFilterAssignee] = useState<string>("ALL");
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Form states
   const [title, setTitle] = useState("");
@@ -167,7 +169,6 @@ export function TasksView({ initialData }: TasksViewProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus tugas ini?")) return;
     setTasks((prev) => prev.filter((t) => t.id !== id));
     await deleteTaskAction(id);
   };
@@ -477,7 +478,7 @@ export function TasksView({ initialData }: TasksViewProps) {
                 </div>
 
                 <button
-                  onClick={() => handleDelete(task.id)}
+                  onClick={() => setDeleteTargetId(task.id)}
                   className="p-2 text-text-black-soft hover:text-red-600 transition-colors rounded-full hover:bg-canvas cursor-pointer opacity-70 group-hover:opacity-100"
                   title="Hapus tugas"
                 >
@@ -488,6 +489,22 @@ export function TasksView({ initialData }: TasksViewProps) {
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Hapus Tugas"
+        description="Apakah Anda yakin ingin menghapus tugas ini dari jadwal keluarga?"
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await handleDelete(deleteTargetId);
+          }
+        }}
+      />
     </div>
   );
 }

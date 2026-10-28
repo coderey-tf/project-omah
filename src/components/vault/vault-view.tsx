@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DocumentCategory } from "@/types/enums";
 import type { VaultDocumentItem } from "@/lib/data/vault";
 import { UploadDocumentModal } from "./upload-document-modal";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteDocumentAction } from "@/actions/vault-actions";
 import {
   Shield,
@@ -40,6 +41,7 @@ export function VaultView({ initialDocuments }: VaultViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Filter documents
   const filteredDocs = documents.filter((doc) => {
@@ -60,9 +62,6 @@ export function VaultView({ initialDocuments }: VaultViewProps) {
   ).length;
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus salinan dokumen ini dari brankas?")) {
-      return;
-    }
     setDeletingId(id);
     const res = await deleteDocumentAction(id);
     setDeletingId(null);
@@ -276,7 +275,7 @@ export function VaultView({ initialDocuments }: VaultViewProps) {
                 {/* Bottom Actions */}
                 <div className="flex items-center justify-between pt-4 mt-4 border-t border-border-card/60">
                   <button
-                    onClick={() => handleDelete(doc.id)}
+                    onClick={() => setDeleteTargetId(doc.id)}
                     disabled={deletingId === doc.id}
                     className="p-1.5 text-text-black-soft hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     title="Hapus Dokumen"
@@ -315,6 +314,22 @@ export function VaultView({ initialDocuments }: VaultViewProps) {
         onSuccess={() => {
           // Re-fetch or reload
           window.location.reload();
+        }}
+      />
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Hapus Dokumen dari Brankas"
+        description="Apakah Anda yakin ingin menghapus salinan dokumen ini dari brankas keluarga? Berkas di storage juga akan dihapus."
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await handleDelete(deleteTargetId);
+          }
         }}
       />
     </div>
